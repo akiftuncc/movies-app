@@ -9,9 +9,15 @@ import "ticket_messages.proto";
 import "user_messages.proto";
 
 service PCustomerService {
-  rpc Store(PortfolioStoreRequest) returns(stream PortfolioStoreResponse) {}
+  rpc BuyTickets(ByIdRequest) returns(stream BuyTicketsResponse) {}
+  rpc WatchMovies(ByIdRequest) returns(stream WatchMoviesResponse) {}
+  rpc ViewWatchHistory(PaginateRequest) returns(stream ViewWatchHistoryResponse) {}
+}
+
+service PUserService {
+    rpc ListMovies(PaginateRequest) returns(stream ListMoviesResponse) {}
 }
 
 service PManagerService {
-    rpc Store(PortfolioStoreRequest) returns(stream PortfolioStoreResponse) {}
+   
   }

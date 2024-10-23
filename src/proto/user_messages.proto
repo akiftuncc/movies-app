@@ -22,13 +22,14 @@ message ViewWatchHistoryRequest {
 }
 
 message ViewWatchHistoryResponse {
-  repeated WatchedMovie data = 1;
+  repeated WatchedMovieDto data = 1;
   general.ResponseStatus status = 2;
   general.PaginationMetaResult pagination = 3;
 }
 
-message WatchedMovie {
-  string movie_id = 1;
-  string movie_name = 2;
+message WatchedMovieDto {
+  string id = 1;
+  string name = 2;
   string watch_date = 3;
+  
 }

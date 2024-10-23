@@ -12,7 +12,7 @@ import { TICKET_NUMBERS } from 'src/utils/constants';
 const prisma = new PrismaClient();
 const logger = new Logger('Seeding - tickets');
 
-export async function createMovies() {
+export async function addTicketsToSessions() {
   const sessions = await prisma.session.findMany();
   for (const session of sessions) {
     await generateTickets(session.id);

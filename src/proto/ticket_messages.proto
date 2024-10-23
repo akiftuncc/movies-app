@@ -7,20 +7,14 @@ import "general.proto";
 import "user_messages.proto";
 import "session_messages.proto";
 
-message Ticket {
-  string id = 1;
-  int32 ticket_number = 2;
-  optional user.User user = 3;
-  session.Session session = 4;
-}
-
-message BuyTicketRequest {
-  string user_id = 1;
-  string session_id = 2;
+message TicketDto {
+  string ticket_date =1;
+  string movie_name=2;
+  string room=3;
 }
 
 message BuyTicketResponse {
-  Ticket ticket = 1;
+  TicketDto ticket = 1;
   general.ResponseStatus status = 2;
 }
 
@@ -29,6 +23,13 @@ message WatchMovieRequest {
   string ticket_id = 2;
 }
 
+message MovieDto {
+  string movie_name = 1;
+  string room = 2;
+  string date = 3;
+}
+
 message WatchMovieResponse {
   general.ResponseStatus status = 1;
+  MovieDto movie = 2;
 }

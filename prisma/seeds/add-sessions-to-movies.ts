@@ -10,7 +10,7 @@ import {
 } from 'src/utils/functions';
 
 const prisma = new PrismaClient();
-const logger = new Logger('Seeding - s');
+const logger = new Logger('Seeding - sessions');
 
 export async function createSessions() {
   for (const session of sessions) {
@@ -38,10 +38,8 @@ export async function createSessions() {
         },
       });
       logger.log(`Created session for movie ${uniqueMovieName}`);
-    } catch (error) {
-      logger.error(
-        `Failed to create session for ${uniqueMovieName}: ${error.message}`,
-      );
+    } catch {
+      logger.error(`Session already exists for ${uniqueMovieName}`);
     }
   }
   await sleep(2000);

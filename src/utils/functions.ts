@@ -5,7 +5,7 @@ import { Logger } from '@nestjs/common';
 import { format } from 'date-fns';
 
 const prisma = new PrismaClient();
-const logger = new Logger('Seeding');
+const logger = new Logger('Seeding - Tickets');
 
 export const password = (pwd: string) => {
   return bcrypt.hashSync(pwd, userConstants.SALT_OR_ROUNDS);
@@ -65,14 +65,22 @@ export const formatDate = (date: Date, timeSlot: TimeSlot) => {
 };
 
 export const generateTickets = async (sessionId: string) => {
+  await sleep(500);
   TICKET_NUMBERS.forEach(async (ticketNumber) => {
-    await prisma.ticket.create({
-      data: {
-        session: {
-          connect: { id: sessionId },
+    try {
+      await prisma.ticket.create({
+        data: {
+          session: {
+            connect: { id: sessionId },
+          },
+          ticketNumber,
         },
-        ticketNumber,
-      },
-    });
+      });
+      logger.log(`Ticket ${ticketNumber} created for session ${sessionId}`);
+    } catch (error) {
+      logger.error(
+        `Ticket Already Exists: ${ticketNumber} for session ${sessionId}`,
+      );
+    }
   });
 };

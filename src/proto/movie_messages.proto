@@ -4,16 +4,12 @@ syntax = "proto3";
 package movie;
 
 import "general.proto";
-import "session_messages.proto";
 
 message Movie {
   string id = 1;
   string name = 2;
   int32 age_restriction = 3;
-  repeated session.Session sessions = 4;
 }
-
-message ListMoviesRequest {}
 
 message ListMoviesResponse {
   repeated Movie movies = 1;
