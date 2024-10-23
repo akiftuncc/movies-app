@@ -1,0 +1,34 @@
+// src/proto/user.proto
+syntax = "proto3";
+
+package user;
+
+import "general.proto";
+
+enum UserType {
+  CUSTOMER = 0;
+  MANAGER = 1;
+}
+
+message User {
+  string id = 1;
+  string username = 2;
+  int32 age = 3;
+  UserType type = 4;
+}
+
+message ViewWatchHistoryRequest {
+  string user_id = 1;
+}
+
+message ViewWatchHistoryResponse {
+  repeated WatchedMovie data = 1;
+  general.ResponseStatus status = 2;
+  general.PaginationMetaResult pagination = 3;
+}
+
+message WatchedMovie {
+  string movie_id = 1;
+  string movie_name = 2;
+  string watch_date = 3;
+}

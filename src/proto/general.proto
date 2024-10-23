@@ -1,0 +1,42 @@
+syntax = "proto3";
+
+package general;
+
+message Error {
+  repeated string errors = 1;
+}
+
+message ResponseStatus {
+  int32 code = 1;
+  optional Error error = 2;
+}
+
+message EmptyResponse { ResponseStatus status = 1; }
+
+message ByIdRequest { string id = 1; }
+
+message EmptyRequest {}
+
+message PaginateRequest {
+  int32 page = 1;
+  int32 per_page = 2;
+  optional string fulltextSearch = 3;
+}
+
+message PaginationMetaResult {
+  int32 records_total = 1;
+  int32 records_filtered = 2;
+}
+
+enum TimeSlot {
+  SLOT_10_12 = 0;
+  SLOT_12_14 = 1;
+  SLOT_14_16 = 2;
+  SLOT_16_18 = 3;
+  SLOT_18_20 = 4;
+  SLOT_20_22 = 5;
+  SLOT_22_00 = 6;
+}
+
+
+

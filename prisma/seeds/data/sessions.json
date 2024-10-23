@@ -1,0 +1,72 @@
+[
+  {
+    "date": "2024-12-02T10:00:00Z",
+    "timeSlot": "SLOT_10_12",
+    "roomNumber": 1,
+    "name": "Inception",
+    "writer": "Christopher Nolan"
+  },
+  {
+    "date": "2024-12-02T14:00:00Z",
+    "timeSlot": "SLOT_12_14",
+    "roomNumber": 2,
+    "name": "Forrest Gump",
+    "writer": "Eric Roth"
+  },
+  {
+    "date": "2024-12-03T10:00:00Z",
+    "timeSlot": "SLOT_10_12",
+    "roomNumber": 3,
+    "name": "The Shawshank Redemption",
+    "writer": "Frank Darabont"
+  },
+  {
+    "date": "2024-12-03T14:00:00Z",
+    "timeSlot": "SLOT_12_14",
+    "roomNumber": 4,
+    "name": "Fight Club",
+    "writer": "Jim Uhls"
+  },
+  {
+    "date": "2024-12-04T10:00:00Z",
+    "timeSlot": "SLOT_10_12",
+    "roomNumber": 5,
+    "name": "Star Wars: Episode IV - A New Hope",
+    "writer": "George Lucas"
+  },
+  {
+    "date": "2024-12-04T14:00:00Z",
+    "timeSlot": "SLOT_12_14",
+    "roomNumber": 1,
+    "name": "Titanic",
+    "writer": "James Cameron"
+  },
+  {
+    "date": "2024-12-05T10:00:00Z",
+    "timeSlot": "SLOT_10_12",
+    "roomNumber": 2,
+    "name": "Saving Private Ryan",
+    "writer": "Robert Rodat"
+  },
+  {
+    "date": "2024-12-05T14:00:00Z",
+    "timeSlot": "SLOT_12_14",
+    "roomNumber": 3,
+    "name": "Schindler's List",
+    "writer": "Steven Zaillian"
+  },
+  {
+    "date": "2024-08-26T10:00:00Z",
+    "timeSlot": "SLOT_10_12",
+    "roomNumber": 4,
+    "name": "The Silence of the Lambs",
+    "writer": "Ted Tally"
+  },
+  {
+    "date": "2024-08-26T14:00:00Z",
+    "timeSlot": "SLOT_12_14",
+    "roomNumber": 5,
+    "name": "Avatar",
+    "writer": "James Cameron"
+  }
+]

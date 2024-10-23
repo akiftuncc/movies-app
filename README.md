@@ -45,6 +45,14 @@ $ yarn run start:dev
 $ yarn run start:prod
 ```
 
+## Seed the Database
+
+To seed the database with initial data, run the following command:
+
+```bash
+$ yarn prisma:db:seed
+```
+
 ## Run tests
 
 ```bash

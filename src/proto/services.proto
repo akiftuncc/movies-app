@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package micro.v1.portfolio;
+
+import "general.proto";
+import "movie_messages.proto";
+import "session_messages.proto";
+import "ticket_messages.proto";
+import "user_messages.proto";
+
+service PCustomerService {
+  rpc Store(PortfolioStoreRequest) returns(stream PortfolioStoreResponse) {}
+}
+
+service PManagerService {
+    rpc Store(PortfolioStoreRequest) returns(stream PortfolioStoreResponse) {}
+  }

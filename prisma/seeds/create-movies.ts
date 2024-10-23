@@ -5,7 +5,7 @@ import { Logger } from '@nestjs/common';
 import { generateUniqueMovieName, sleep } from 'src/utils/functions';
 
 const prisma = new PrismaClient();
-const logger = new Logger('Seeding');
+const logger = new Logger('Seeding - movies');
 
 export async function createMovies() {
   for (const movie of movies) {

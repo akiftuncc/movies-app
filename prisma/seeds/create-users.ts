@@ -5,7 +5,7 @@ import { password, sleep } from 'src/utils/functions';
 import { Logger } from '@nestjs/common';
 
 const prisma = new PrismaClient();
-const logger = new Logger('Seeding');
+const logger = new Logger('Seeding - users');
 
 export async function createUsers() {
   for (const user of users) {

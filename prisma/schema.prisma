@@ -57,14 +57,17 @@ model Session {
 
 model Ticket {
   id String @id @default(cuid())
-  ticketIdentifier String
+  ticketNumber Int
+  isUsed Boolean @default(false)
   createdAt DateTime @map("created_at") @default(now()) @db.DateTime(0)
   deletedAt DateTime? @map("deleted_at") @db.DateTime(0)
   // RELATIONS
-  userId String
-  user User @relation(fields: [userId], references: [id])
+  userId String?
+  user User? @relation(fields: [userId], references: [id])
   sessionId String
   session Session @relation(fields: [sessionId], references: [id])
+  @@unique([sessionId, ticketNumber])
+  @@unique([sessionId,userId])
   @@map("tickets")
 }
 
