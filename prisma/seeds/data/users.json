@@ -1,0 +1,62 @@
+[
+  {
+    "username": "manager001",
+    "password": "pass001",
+    "age": 20,
+    "type": "MANAGER"
+  },
+  {
+    "username": "user002",
+    "password": "pass002",
+    "age": 21,
+    "type": "CUSTOMER"
+  },
+  {
+    "username": "user003",
+    "password": "pass003",
+    "age": 22,
+    "type": "CUSTOMER"
+  },
+  {
+    "username": "user004",
+    "password": "pass004",
+    "age": 23,
+    "type": "CUSTOMER"
+  },
+  {
+    "username": "user005",
+    "password": "pass005",
+    "age": 24,
+    "type": "CUSTOMER"
+  },
+  {
+    "username": "user006",
+    "password": "pass006",
+    "age": 25,
+    "type": "CUSTOMER"
+  },
+  {
+    "username": "user007",
+    "password": "pass007",
+    "age": 26,
+    "type": "CUSTOMER"
+  },
+  {
+    "username": "user008",
+    "password": "pass008",
+    "age": 27,
+    "type": "CUSTOMER"
+  },
+  {
+    "username": "user009",
+    "password": "pass009",
+    "age": 28,
+    "type": "CUSTOMER"
+  },
+  {
+    "username": "user010",
+    "password": "pass010",
+    "age": 29,
+    "type": "CUSTOMER"
+  }
+]

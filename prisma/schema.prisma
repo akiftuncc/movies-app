@@ -1,0 +1,84 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id String @id @default(cuid())
+  username String @unique
+  password String
+  age Int
+  type UserType @default(CUSTOMER)
+  createdAt DateTime @map("created_at") @default(now()) @db.DateTime(0)
+  updatedAt DateTime @map("updated_at") @updatedAt @db.DateTime(0)
+  deletedAt DateTime? @map("deleted_at") @db.DateTime(0)
+// RELATIONS
+  tickets Ticket[]
+  @@map("users")
+}
+
+model Movie {
+  id String @id @default(cuid())
+  name String
+  uniqueName String @unique 
+  ageRestriction Int
+  createdAt DateTime @map("created_at") @default(now()) @db.DateTime(0)
+  updatedAt DateTime @map("updated_at") @updatedAt @db.DateTime(0)
+  deletedAt DateTime? @map("deleted_at") @db.DateTime(0)
+  // RELATIONS
+  sessions Session[]
+  @@map("movies")
+}
+
+model Session {
+  id String @id @default(cuid())
+  date DateTime @map("date") @db.DateTime(0)
+  timeSlot TimeSlot
+  roomNumber Int
+  createdAt DateTime @map("created_at") @default(now()) @db.DateTime(0)
+  deletedAt DateTime? @map("deleted_at") @db.DateTime(0)
+  // RELATIONS
+  tickets Ticket[]
+  movieId String
+  movie Movie @relation(fields: [movieId], references: [id])
+  @@unique([date, roomNumber])
+  @@map("sessions")
+}
+
+model Ticket {
+  id String @id @default(cuid())
+  ticketIdentifier String
+  createdAt DateTime @map("created_at") @default(now()) @db.DateTime(0)
+  deletedAt DateTime? @map("deleted_at") @db.DateTime(0)
+  // RELATIONS
+  userId String
+  user User @relation(fields: [userId], references: [id])
+  sessionId String
+  session Session @relation(fields: [sessionId], references: [id])
+  @@map("tickets")
+}
+
+enum TimeSlot {
+  SLOT_10_12
+  SLOT_12_14
+  SLOT_14_16
+  SLOT_16_18
+  SLOT_18_20
+  SLOT_20_22
+  SLOT_22_00
+}
+
+enum UserType {
+  MANAGER
+  CUSTOMER
+}

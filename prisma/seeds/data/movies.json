@@ -1,0 +1,52 @@
+[
+  {
+    "name": "Inception",
+    "ageRestriction": 13,
+    "writer": "Christopher Nolan"
+  },
+  {
+    "name": "Forrest Gump",
+    "ageRestriction": 13,
+    "writer": "Eric Roth"
+  },
+  {
+    "name": "The Shawshank Redemption",
+    "ageRestriction": 16,
+    "writer": "Frank Darabont"
+  },
+  {
+    "name": "Fight Club",
+    "ageRestriction": 18,
+    "writer": "Jim Uhls"
+  },
+  {
+    "name": "Star Wars: Episode IV - A New Hope",
+    "ageRestriction": 0,
+    "writer": "George Lucas"
+  },
+  {
+    "name": "Titanic",
+    "ageRestriction": 13,
+    "writer": "James Cameron"
+  },
+  {
+    "name": "Saving Private Ryan",
+    "ageRestriction": 16,
+    "writer": "Robert Rodat"
+  },
+  {
+    "name": "Schindler's List",
+    "ageRestriction": 15,
+    "writer": "Steven Zaillian"
+  },
+  {
+    "name": "The Silence of the Lambs",
+    "ageRestriction": 18,
+    "writer": "Ted Tally"
+  },
+  {
+    "name": "Avatar",
+    "ageRestriction": 13,
+    "writer": "James Cameron"
+  }
+]
