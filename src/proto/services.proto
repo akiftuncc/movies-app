@@ -3,21 +3,25 @@ syntax = "proto3";
 package micro.v1.portfolio;
 
 import "general.proto";
-import "movie_messages.proto";
-import "session_messages.proto";
-import "ticket_messages.proto";
+import "customer_messages.proto";
+import "manager_messages.proto";
 import "user_messages.proto";
 
 service PCustomerService {
-  rpc BuyTickets(ByIdRequest) returns(stream BuyTicketsResponse) {}
-  rpc WatchMovies(ByIdRequest) returns(stream WatchMoviesResponse) {}
-  rpc ViewWatchHistory(PaginateRequest) returns(stream ViewWatchHistoryResponse) {}
+  rpc buyTicket(general.ByIdRequest) returns( customer.BuyTicketResponse) {}
+  rpc watchMovie(general.ByIdRequest) returns( customer.WatchMovieResponse) {}
+  rpc viewWatchHistory(general.PaginateRequest) returns( customer.ViewWatchHistoryResponse) {}
 }
 
 service PUserService {
-    rpc ListMovies(PaginateRequest) returns(stream ListMoviesResponse) {}
+    rpc listMovies(general.PaginateRequest) returns( user.ListMoviesResponse) {}
+    rpc register(user.RegisterRequest) returns( user.RegisterResponse) {}
+    rpc login(user.LoginRequest) returns( user.LoginResponse) {}
+    rpc delete(general.ByIdRequest) returns( general.EmptyResponse) {}
 }
 
 service PManagerService {
-   
+    rpc createMovies(manager.AddMoviesRequest) returns( general.EmptyResponse) {}
+    rpc updateMovies(manager.UpdateMovieRequest) returns( general.EmptyResponse) {}
+    rpc deleteMovies(general.ByIdRequest) returns( general.EmptyResponse) {}
   }

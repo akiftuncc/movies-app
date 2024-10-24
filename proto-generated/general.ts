@@ -9,6 +9,102 @@ import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 
 export const protobufPackage = "general";
 
+export enum TimeSlot {
+  SLOT_10_12 = 0,
+  SLOT_12_14 = 1,
+  SLOT_14_16 = 2,
+  SLOT_16_18 = 3,
+  SLOT_18_20 = 4,
+  SLOT_20_22 = 5,
+  SLOT_22_00 = 6,
+  UNRECOGNIZED = -1,
+}
+
+export function timeSlotFromJSON(object: any): TimeSlot {
+  switch (object) {
+    case 0:
+    case "SLOT_10_12":
+      return TimeSlot.SLOT_10_12;
+    case 1:
+    case "SLOT_12_14":
+      return TimeSlot.SLOT_12_14;
+    case 2:
+    case "SLOT_14_16":
+      return TimeSlot.SLOT_14_16;
+    case 3:
+    case "SLOT_16_18":
+      return TimeSlot.SLOT_16_18;
+    case 4:
+    case "SLOT_18_20":
+      return TimeSlot.SLOT_18_20;
+    case 5:
+    case "SLOT_20_22":
+      return TimeSlot.SLOT_20_22;
+    case 6:
+    case "SLOT_22_00":
+      return TimeSlot.SLOT_22_00;
+    case -1:
+    case "UNRECOGNIZED":
+    default:
+      return TimeSlot.UNRECOGNIZED;
+  }
+}
+
+export function timeSlotToJSON(object: TimeSlot): string {
+  switch (object) {
+    case TimeSlot.SLOT_10_12:
+      return "SLOT_10_12";
+    case TimeSlot.SLOT_12_14:
+      return "SLOT_12_14";
+    case TimeSlot.SLOT_14_16:
+      return "SLOT_14_16";
+    case TimeSlot.SLOT_16_18:
+      return "SLOT_16_18";
+    case TimeSlot.SLOT_18_20:
+      return "SLOT_18_20";
+    case TimeSlot.SLOT_20_22:
+      return "SLOT_20_22";
+    case TimeSlot.SLOT_22_00:
+      return "SLOT_22_00";
+    case TimeSlot.UNRECOGNIZED:
+    default:
+      return "UNRECOGNIZED";
+  }
+}
+
+export enum UserType {
+  CUSTOMER = 0,
+  MANAGER = 1,
+  UNRECOGNIZED = -1,
+}
+
+export function userTypeFromJSON(object: any): UserType {
+  switch (object) {
+    case 0:
+    case "CUSTOMER":
+      return UserType.CUSTOMER;
+    case 1:
+    case "MANAGER":
+      return UserType.MANAGER;
+    case -1:
+    case "UNRECOGNIZED":
+    default:
+      return UserType.UNRECOGNIZED;
+  }
+}
+
+export function userTypeToJSON(object: UserType): string {
+  switch (object) {
+    case UserType.CUSTOMER:
+      return "CUSTOMER";
+    case UserType.MANAGER:
+      return "MANAGER";
+    case UserType.UNRECOGNIZED:
+    default:
+      return "UNRECOGNIZED";
+  }
+}
+
 export interface Error {
   errors: string[];
 }
@@ -38,6 +134,28 @@ export interface PaginateRequest {
 export interface PaginationMetaResult {
   recordsTotal: number;
   recordsFiltered: number;
+}
+
+export interface UserDto {
+  id: string;
+  username: string;
+  age: number;
+  type: UserType;
+}
+
+export interface Ticket {
+  id: string;
+  ticketNumber: number;
+  user?: UserDto | undefined;
+  session: SessionDto | undefined;
+}
+
+export interface SessionDto {
+  id: string;
+  date: string;
+  timeSlot: TimeSlot;
+  roomNumber: number;
+  tickets: Ticket[];
 }
 
 function createBaseError(): Error {
@@ -501,6 +619,348 @@ export const PaginationMetaResult: MessageFns<PaginationMetaResult> = {
     const message = createBasePaginationMetaResult();
     message.recordsTotal = object.recordsTotal ?? 0;
     message.recordsFiltered = object.recordsFiltered ?? 0;
+    return message;
+  },
+};
+
+function createBaseUserDto(): UserDto {
+  return { id: "", username: "", age: 0, type: 0 };
+}
+
+export const UserDto: MessageFns<UserDto> = {
+  encode(message: UserDto, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.id !== "") {
+      writer.uint32(10).string(message.id);
+    }
+    if (message.username !== "") {
+      writer.uint32(18).string(message.username);
+    }
+    if (message.age !== 0) {
+      writer.uint32(24).int32(message.age);
+    }
+    if (message.type !== 0) {
+      writer.uint32(32).int32(message.type);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): UserDto {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseUserDto();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.id = reader.string();
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.username = reader.string();
+          continue;
+        }
+        case 3: {
+          if (tag !== 24) {
+            break;
+          }
+
+          message.age = reader.int32();
+          continue;
+        }
+        case 4: {
+          if (tag !== 32) {
+            break;
+          }
+
+          message.type = reader.int32() as any;
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): UserDto {
+    return {
+      id: isSet(object.id) ? globalThis.String(object.id) : "",
+      username: isSet(object.username) ? globalThis.String(object.username) : "",
+      age: isSet(object.age) ? globalThis.Number(object.age) : 0,
+      type: isSet(object.type) ? userTypeFromJSON(object.type) : 0,
+    };
+  },
+
+  toJSON(message: UserDto): unknown {
+    const obj: any = {};
+    if (message.id !== "") {
+      obj.id = message.id;
+    }
+    if (message.username !== "") {
+      obj.username = message.username;
+    }
+    if (message.age !== 0) {
+      obj.age = Math.round(message.age);
+    }
+    if (message.type !== 0) {
+      obj.type = userTypeToJSON(message.type);
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<UserDto>, I>>(base?: I): UserDto {
+    return UserDto.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<UserDto>, I>>(object: I): UserDto {
+    const message = createBaseUserDto();
+    message.id = object.id ?? "";
+    message.username = object.username ?? "";
+    message.age = object.age ?? 0;
+    message.type = object.type ?? 0;
+    return message;
+  },
+};
+
+function createBaseTicket(): Ticket {
+  return { id: "", ticketNumber: 0, user: undefined, session: undefined };
+}
+
+export const Ticket: MessageFns<Ticket> = {
+  encode(message: Ticket, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.id !== "") {
+      writer.uint32(10).string(message.id);
+    }
+    if (message.ticketNumber !== 0) {
+      writer.uint32(16).int32(message.ticketNumber);
+    }
+    if (message.user !== undefined) {
+      UserDto.encode(message.user, writer.uint32(26).fork()).join();
+    }
+    if (message.session !== undefined) {
+      SessionDto.encode(message.session, writer.uint32(34).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): Ticket {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseTicket();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.id = reader.string();
+          continue;
+        }
+        case 2: {
+          if (tag !== 16) {
+            break;
+          }
+
+          message.ticketNumber = reader.int32();
+          continue;
+        }
+        case 3: {
+          if (tag !== 26) {
+            break;
+          }
+
+          message.user = UserDto.decode(reader, reader.uint32());
+          continue;
+        }
+        case 4: {
+          if (tag !== 34) {
+            break;
+          }
+
+          message.session = SessionDto.decode(reader, reader.uint32());
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): Ticket {
+    return {
+      id: isSet(object.id) ? globalThis.String(object.id) : "",
+      ticketNumber: isSet(object.ticketNumber) ? globalThis.Number(object.ticketNumber) : 0,
+      user: isSet(object.user) ? UserDto.fromJSON(object.user) : undefined,
+      session: isSet(object.session) ? SessionDto.fromJSON(object.session) : undefined,
+    };
+  },
+
+  toJSON(message: Ticket): unknown {
+    const obj: any = {};
+    if (message.id !== "") {
+      obj.id = message.id;
+    }
+    if (message.ticketNumber !== 0) {
+      obj.ticketNumber = Math.round(message.ticketNumber);
+    }
+    if (message.user !== undefined) {
+      obj.user = UserDto.toJSON(message.user);
+    }
+    if (message.session !== undefined) {
+      obj.session = SessionDto.toJSON(message.session);
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<Ticket>, I>>(base?: I): Ticket {
+    return Ticket.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<Ticket>, I>>(object: I): Ticket {
+    const message = createBaseTicket();
+    message.id = object.id ?? "";
+    message.ticketNumber = object.ticketNumber ?? 0;
+    message.user = (object.user !== undefined && object.user !== null) ? UserDto.fromPartial(object.user) : undefined;
+    message.session = (object.session !== undefined && object.session !== null)
+      ? SessionDto.fromPartial(object.session)
+      : undefined;
+    return message;
+  },
+};
+
+function createBaseSessionDto(): SessionDto {
+  return { id: "", date: "", timeSlot: 0, roomNumber: 0, tickets: [] };
+}
+
+export const SessionDto: MessageFns<SessionDto> = {
+  encode(message: SessionDto, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.id !== "") {
+      writer.uint32(10).string(message.id);
+    }
+    if (message.date !== "") {
+      writer.uint32(18).string(message.date);
+    }
+    if (message.timeSlot !== 0) {
+      writer.uint32(24).int32(message.timeSlot);
+    }
+    if (message.roomNumber !== 0) {
+      writer.uint32(32).int32(message.roomNumber);
+    }
+    for (const v of message.tickets) {
+      Ticket.encode(v!, writer.uint32(42).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): SessionDto {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseSessionDto();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.id = reader.string();
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.date = reader.string();
+          continue;
+        }
+        case 3: {
+          if (tag !== 24) {
+            break;
+          }
+
+          message.timeSlot = reader.int32() as any;
+          continue;
+        }
+        case 4: {
+          if (tag !== 32) {
+            break;
+          }
+
+          message.roomNumber = reader.int32();
+          continue;
+        }
+        case 5: {
+          if (tag !== 42) {
+            break;
+          }
+
+          message.tickets.push(Ticket.decode(reader, reader.uint32()));
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): SessionDto {
+    return {
+      id: isSet(object.id) ? globalThis.String(object.id) : "",
+      date: isSet(object.date) ? globalThis.String(object.date) : "",
+      timeSlot: isSet(object.timeSlot) ? timeSlotFromJSON(object.timeSlot) : 0,
+      roomNumber: isSet(object.roomNumber) ? globalThis.Number(object.roomNumber) : 0,
+      tickets: globalThis.Array.isArray(object?.tickets) ? object.tickets.map((e: any) => Ticket.fromJSON(e)) : [],
+    };
+  },
+
+  toJSON(message: SessionDto): unknown {
+    const obj: any = {};
+    if (message.id !== "") {
+      obj.id = message.id;
+    }
+    if (message.date !== "") {
+      obj.date = message.date;
+    }
+    if (message.timeSlot !== 0) {
+      obj.timeSlot = timeSlotToJSON(message.timeSlot);
+    }
+    if (message.roomNumber !== 0) {
+      obj.roomNumber = Math.round(message.roomNumber);
+    }
+    if (message.tickets?.length) {
+      obj.tickets = message.tickets.map((e) => Ticket.toJSON(e));
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<SessionDto>, I>>(base?: I): SessionDto {
+    return SessionDto.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<SessionDto>, I>>(object: I): SessionDto {
+    const message = createBaseSessionDto();
+    message.id = object.id ?? "";
+    message.date = object.date ?? "";
+    message.timeSlot = object.timeSlot ?? 0;
+    message.roomNumber = object.roomNumber ?? 0;
+    message.tickets = object.tickets?.map((e) => Ticket.fromPartial(e)) || [];
     return message;
   },
 };

@@ -5,31 +5,37 @@ package user;
 
 import "general.proto";
 
-enum UserType {
-  CUSTOMER = 0;
-  MANAGER = 1;
-}
-
-message User {
+message MovieDto {
   string id = 1;
-  string username = 2;
-  int32 age = 3;
-  UserType type = 4;
+  string name = 2;
+  int32 age_restriction = 3;
 }
 
-message ViewWatchHistoryRequest {
-  string user_id = 1;
-}
-
-message ViewWatchHistoryResponse {
-  repeated WatchedMovieDto data = 1;
+message ListMoviesResponse {
+  repeated MovieDto movies = 1;
   general.ResponseStatus status = 2;
   general.PaginationMetaResult pagination = 3;
 }
 
-message WatchedMovieDto {
-  string id = 1;
-  string name = 2;
-  string watch_date = 3;
-  
+message RegisterRequest {
+  string username = 1;
+  string password = 2;
+  string password_confirmation = 3;
+  int32 age = 4;
+  general.UserType type = 5;
+}
+
+message RegisterResponse {
+  general.ResponseStatus status = 1;
+  string access_token = 2;
+}
+
+message LoginRequest {
+  string username = 1;
+  string password = 2;
+}
+
+message LoginResponse {
+  general.ResponseStatus status = 1;
+  string access_token = 2;
 }

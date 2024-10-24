@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package manager;
+
+import "general.proto";
+
+message AddMoviesRequest {
+    string name = 1;
+    int32 age_restriction = 2;
+    repeated general.SessionDto sessions = 3;
+}
+
+message UpdateMovieRequest {
+    string id = 1;
+    optional string name = 2;
+    optional int32 age_restriction = 3;
+    repeated general.SessionDto sessions = 4;
+}
+

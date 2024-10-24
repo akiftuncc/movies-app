@@ -1,0 +1,49 @@
+// src/proto/movie.proto
+syntax = "proto3";
+
+package customer;
+
+import "general.proto";
+
+message ViewWatchHistoryRequest {
+    string user_id = 1;
+  }
+  
+  message ViewWatchHistoryResponse {
+    repeated WatchedMovieDto data = 1;
+    general.ResponseStatus status = 2;
+    general.PaginationMetaResult pagination = 3;
+  }
+  
+  message WatchedMovieDto {
+    string id = 1;
+    string name = 2;
+    string watch_date = 3; 
+  }
+
+  message TicketDto {
+    string ticket_date =1;
+    string movie_name=2;
+    string room=3;
+  }
+  
+  message BuyTicketResponse {
+    general.ResponseStatus status = 1;
+    TicketDto data = 2;
+  }
+  
+  message WatchMovieRequest {
+    string user_id = 1;
+    string ticket_id = 2;
+  }
+  
+  message MovieDto {
+    string movie_name = 1;
+    string room = 2;
+    string date = 3;
+  }
+  
+  message WatchMovieResponse {
+    general.ResponseStatus status = 1;
+    MovieDto movie = 2;
+  }

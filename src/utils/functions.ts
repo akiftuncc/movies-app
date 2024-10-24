@@ -1,9 +1,10 @@
 import * as bcrypt from 'bcrypt';
-import { TICKET_NUMBERS, userConstants } from './constants';
+import { TICKET_NUMBERS, userConstants, X_INTERNAL_HASH } from './constants';
 import { Movie, PrismaClient, TimeSlot } from '@prisma/client';
 import { Logger } from '@nestjs/common';
 import { format } from 'date-fns';
-
+import crypto from 'crypto';
+import * as jwt from 'jsonwebtoken';
 const prisma = new PrismaClient();
 const logger = new Logger('Seeding - Tickets');
 
@@ -83,4 +84,33 @@ export const generateTickets = async (sessionId: string) => {
       );
     }
   });
+};
+
+export const getMetadata = (clientJwt: string, jwtSecret: string) => {
+  const token = clientJwt.startsWith('Bearer ')
+    ? clientJwt.substring(7).trim()
+    : clientJwt;
+  const headers = {
+    authorization: `Bearer ${token}`,
+    [X_INTERNAL_HASH]: crypto
+      .createHash('md5')
+      .update(jwtSecret)
+      .digest('hex')
+      .toLowerCase(),
+  };
+  return headers;
+};
+
+export const getEnv = (key: string, defaultVal?: any): string => {
+  const result = process.env[key];
+
+  if (typeof result === 'undefined') {
+    if (defaultVal) {
+      return defaultVal;
+    } else {
+      throw new Error(key + ' not defined in env.');
+    }
+  }
+
+  return result;
 };

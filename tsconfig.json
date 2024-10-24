@@ -1,5 +1,9 @@
 {
   "compilerOptions": {
+    "paths": {
+      "@/*": ["src/*"],
+      "test/*": ["test/*"]
+    },
     "resolveJsonModule": true,
     "esModuleInterop": true,
     "module": "commonjs",

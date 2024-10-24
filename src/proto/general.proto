@@ -38,5 +38,30 @@ enum TimeSlot {
   SLOT_22_00 = 6;
 }
 
+message UserDto {
+  string id = 1;
+  string username = 2;
+  int32 age = 3;
+  UserType type = 4;
+}
 
+enum UserType {
+  CUSTOMER = 0;
+  MANAGER = 1;
+}
+
+message Ticket {
+  string id = 1;
+  int32 ticket_number = 2;
+  optional UserDto user = 3;
+  SessionDto session = 4;
+}
+
+message SessionDto {
+  string id = 1;
+  string date = 2;
+  general.TimeSlot time_slot = 3;
+  int32 room_number = 4;
+  repeated Ticket tickets = 5;
+}
 
