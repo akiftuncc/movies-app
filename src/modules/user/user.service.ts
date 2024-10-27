@@ -134,7 +134,7 @@ export class UserService implements OnModuleInit, PUserService {
     }
     await this.prisma.user.update({
       where: { id: request.id, deletedAt: null },
-      data: prismaDeletedAt(username.username),
+      data: prismaDeletedAt('username', username.username),
     });
     return { status: { code: 200 } };
   }

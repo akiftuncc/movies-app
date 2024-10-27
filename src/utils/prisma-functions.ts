@@ -24,9 +24,9 @@ export function prismaPaginateCreator(page: number, perPage: number) {
   };
 }
 
-export function prismaDeletedAt(value: string) {
+export function prismaDeletedAt(key: string, value: string) {
   return {
     deletedAt: new Date(),
-    username: 'deleted_' + value + new Date().toString(),
+    [key]: 'deleted_' + value + new Date().toString(),
   };
 }
