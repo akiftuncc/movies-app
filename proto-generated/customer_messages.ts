@@ -7,6 +7,7 @@
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 import { PaginationMetaResult, ResponseStatus } from "./general";
+import { MovieDto } from "./user_messages";
 
 export const protobufPackage = "customer";
 
@@ -42,12 +43,6 @@ export interface BuyTicketResponse {
 export interface WatchMovieRequest {
   userId: string;
   ticketId: string;
-}
-
-export interface MovieDto {
-  movieName: string;
-  room: string;
-  date: string;
 }
 
 export interface WatchMovieResponse {
@@ -543,98 +538,6 @@ export const WatchMovieRequest: MessageFns<WatchMovieRequest> = {
     const message = createBaseWatchMovieRequest();
     message.userId = object.userId ?? "";
     message.ticketId = object.ticketId ?? "";
-    return message;
-  },
-};
-
-function createBaseMovieDto(): MovieDto {
-  return { movieName: "", room: "", date: "" };
-}
-
-export const MovieDto: MessageFns<MovieDto> = {
-  encode(message: MovieDto, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.movieName !== "") {
-      writer.uint32(10).string(message.movieName);
-    }
-    if (message.room !== "") {
-      writer.uint32(18).string(message.room);
-    }
-    if (message.date !== "") {
-      writer.uint32(26).string(message.date);
-    }
-    return writer;
-  },
-
-  decode(input: BinaryReader | Uint8Array, length?: number): MovieDto {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
-    let end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseMovieDto();
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1: {
-          if (tag !== 10) {
-            break;
-          }
-
-          message.movieName = reader.string();
-          continue;
-        }
-        case 2: {
-          if (tag !== 18) {
-            break;
-          }
-
-          message.room = reader.string();
-          continue;
-        }
-        case 3: {
-          if (tag !== 26) {
-            break;
-          }
-
-          message.date = reader.string();
-          continue;
-        }
-      }
-      if ((tag & 7) === 4 || tag === 0) {
-        break;
-      }
-      reader.skip(tag & 7);
-    }
-    return message;
-  },
-
-  fromJSON(object: any): MovieDto {
-    return {
-      movieName: isSet(object.movieName) ? globalThis.String(object.movieName) : "",
-      room: isSet(object.room) ? globalThis.String(object.room) : "",
-      date: isSet(object.date) ? globalThis.String(object.date) : "",
-    };
-  },
-
-  toJSON(message: MovieDto): unknown {
-    const obj: any = {};
-    if (message.movieName !== "") {
-      obj.movieName = message.movieName;
-    }
-    if (message.room !== "") {
-      obj.room = message.room;
-    }
-    if (message.date !== "") {
-      obj.date = message.date;
-    }
-    return obj;
-  },
-
-  create<I extends Exact<DeepPartial<MovieDto>, I>>(base?: I): MovieDto {
-    return MovieDto.fromPartial(base ?? ({} as any));
-  },
-  fromPartial<I extends Exact<DeepPartial<MovieDto>, I>>(object: I): MovieDto {
-    const message = createBaseMovieDto();
-    message.movieName = object.movieName ?? "";
-    message.room = object.room ?? "";
-    message.date = object.date ?? "";
     return message;
   },
 };

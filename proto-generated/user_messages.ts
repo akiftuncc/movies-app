@@ -12,10 +12,17 @@ export const protobufPackage = "user";
 
 /** src/proto/user.proto */
 
+export interface MovieSessionsDto {
+  date: string;
+  hour: string;
+  room: number;
+  availableTickets: string[];
+}
+
 export interface MovieDto {
   id: string;
-  name: string;
-  ageRestriction: number;
+  movieName: string;
+  movieSessions: MovieSessionsDto[];
 }
 
 export interface ListMoviesResponse {
@@ -47,8 +54,125 @@ export interface LoginResponse {
   accessToken: string;
 }
 
+export interface JwtUser {
+  username: string;
+  sub: string;
+  role: string;
+  iss: string;
+}
+
+function createBaseMovieSessionsDto(): MovieSessionsDto {
+  return { date: "", hour: "", room: 0, availableTickets: [] };
+}
+
+export const MovieSessionsDto: MessageFns<MovieSessionsDto> = {
+  encode(message: MovieSessionsDto, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.date !== "") {
+      writer.uint32(10).string(message.date);
+    }
+    if (message.hour !== "") {
+      writer.uint32(18).string(message.hour);
+    }
+    if (message.room !== 0) {
+      writer.uint32(24).int32(message.room);
+    }
+    for (const v of message.availableTickets) {
+      writer.uint32(34).string(v!);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): MovieSessionsDto {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseMovieSessionsDto();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.date = reader.string();
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.hour = reader.string();
+          continue;
+        }
+        case 3: {
+          if (tag !== 24) {
+            break;
+          }
+
+          message.room = reader.int32();
+          continue;
+        }
+        case 4: {
+          if (tag !== 34) {
+            break;
+          }
+
+          message.availableTickets.push(reader.string());
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): MovieSessionsDto {
+    return {
+      date: isSet(object.date) ? globalThis.String(object.date) : "",
+      hour: isSet(object.hour) ? globalThis.String(object.hour) : "",
+      room: isSet(object.room) ? globalThis.Number(object.room) : 0,
+      availableTickets: globalThis.Array.isArray(object?.availableTickets)
+        ? object.availableTickets.map((e: any) => globalThis.String(e))
+        : [],
+    };
+  },
+
+  toJSON(message: MovieSessionsDto): unknown {
+    const obj: any = {};
+    if (message.date !== "") {
+      obj.date = message.date;
+    }
+    if (message.hour !== "") {
+      obj.hour = message.hour;
+    }
+    if (message.room !== 0) {
+      obj.room = Math.round(message.room);
+    }
+    if (message.availableTickets?.length) {
+      obj.availableTickets = message.availableTickets;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<MovieSessionsDto>, I>>(base?: I): MovieSessionsDto {
+    return MovieSessionsDto.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<MovieSessionsDto>, I>>(object: I): MovieSessionsDto {
+    const message = createBaseMovieSessionsDto();
+    message.date = object.date ?? "";
+    message.hour = object.hour ?? "";
+    message.room = object.room ?? 0;
+    message.availableTickets = object.availableTickets?.map((e) => e) || [];
+    return message;
+  },
+};
+
 function createBaseMovieDto(): MovieDto {
-  return { id: "", name: "", ageRestriction: 0 };
+  return { id: "", movieName: "", movieSessions: [] };
 }
 
 export const MovieDto: MessageFns<MovieDto> = {
@@ -56,11 +180,11 @@ export const MovieDto: MessageFns<MovieDto> = {
     if (message.id !== "") {
       writer.uint32(10).string(message.id);
     }
-    if (message.name !== "") {
-      writer.uint32(18).string(message.name);
+    if (message.movieName !== "") {
+      writer.uint32(18).string(message.movieName);
     }
-    if (message.ageRestriction !== 0) {
-      writer.uint32(24).int32(message.ageRestriction);
+    for (const v of message.movieSessions) {
+      MovieSessionsDto.encode(v!, writer.uint32(42).fork()).join();
     }
     return writer;
   },
@@ -85,15 +209,15 @@ export const MovieDto: MessageFns<MovieDto> = {
             break;
           }
 
-          message.name = reader.string();
+          message.movieName = reader.string();
           continue;
         }
-        case 3: {
-          if (tag !== 24) {
+        case 5: {
+          if (tag !== 42) {
             break;
           }
 
-          message.ageRestriction = reader.int32();
+          message.movieSessions.push(MovieSessionsDto.decode(reader, reader.uint32()));
           continue;
         }
       }
@@ -108,8 +232,10 @@ export const MovieDto: MessageFns<MovieDto> = {
   fromJSON(object: any): MovieDto {
     return {
       id: isSet(object.id) ? globalThis.String(object.id) : "",
-      name: isSet(object.name) ? globalThis.String(object.name) : "",
-      ageRestriction: isSet(object.ageRestriction) ? globalThis.Number(object.ageRestriction) : 0,
+      movieName: isSet(object.movieName) ? globalThis.String(object.movieName) : "",
+      movieSessions: globalThis.Array.isArray(object?.movieSessions)
+        ? object.movieSessions.map((e: any) => MovieSessionsDto.fromJSON(e))
+        : [],
     };
   },
 
@@ -118,11 +244,11 @@ export const MovieDto: MessageFns<MovieDto> = {
     if (message.id !== "") {
       obj.id = message.id;
     }
-    if (message.name !== "") {
-      obj.name = message.name;
+    if (message.movieName !== "") {
+      obj.movieName = message.movieName;
     }
-    if (message.ageRestriction !== 0) {
-      obj.ageRestriction = Math.round(message.ageRestriction);
+    if (message.movieSessions?.length) {
+      obj.movieSessions = message.movieSessions.map((e) => MovieSessionsDto.toJSON(e));
     }
     return obj;
   },
@@ -133,8 +259,8 @@ export const MovieDto: MessageFns<MovieDto> = {
   fromPartial<I extends Exact<DeepPartial<MovieDto>, I>>(object: I): MovieDto {
     const message = createBaseMovieDto();
     message.id = object.id ?? "";
-    message.name = object.name ?? "";
-    message.ageRestriction = object.ageRestriction ?? 0;
+    message.movieName = object.movieName ?? "";
+    message.movieSessions = object.movieSessions?.map((e) => MovieSessionsDto.fromPartial(e)) || [];
     return message;
   },
 };
@@ -587,6 +713,114 @@ export const LoginResponse: MessageFns<LoginResponse> = {
       ? ResponseStatus.fromPartial(object.status)
       : undefined;
     message.accessToken = object.accessToken ?? "";
+    return message;
+  },
+};
+
+function createBaseJwtUser(): JwtUser {
+  return { username: "", sub: "", role: "", iss: "" };
+}
+
+export const JwtUser: MessageFns<JwtUser> = {
+  encode(message: JwtUser, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.username !== "") {
+      writer.uint32(10).string(message.username);
+    }
+    if (message.sub !== "") {
+      writer.uint32(18).string(message.sub);
+    }
+    if (message.role !== "") {
+      writer.uint32(26).string(message.role);
+    }
+    if (message.iss !== "") {
+      writer.uint32(34).string(message.iss);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): JwtUser {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseJwtUser();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.username = reader.string();
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.sub = reader.string();
+          continue;
+        }
+        case 3: {
+          if (tag !== 26) {
+            break;
+          }
+
+          message.role = reader.string();
+          continue;
+        }
+        case 4: {
+          if (tag !== 34) {
+            break;
+          }
+
+          message.iss = reader.string();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): JwtUser {
+    return {
+      username: isSet(object.username) ? globalThis.String(object.username) : "",
+      sub: isSet(object.sub) ? globalThis.String(object.sub) : "",
+      role: isSet(object.role) ? globalThis.String(object.role) : "",
+      iss: isSet(object.iss) ? globalThis.String(object.iss) : "",
+    };
+  },
+
+  toJSON(message: JwtUser): unknown {
+    const obj: any = {};
+    if (message.username !== "") {
+      obj.username = message.username;
+    }
+    if (message.sub !== "") {
+      obj.sub = message.sub;
+    }
+    if (message.role !== "") {
+      obj.role = message.role;
+    }
+    if (message.iss !== "") {
+      obj.iss = message.iss;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<JwtUser>, I>>(base?: I): JwtUser {
+    return JwtUser.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<JwtUser>, I>>(object: I): JwtUser {
+    const message = createBaseJwtUser();
+    message.username = object.username ?? "";
+    message.sub = object.sub ?? "";
+    message.role = object.role ?? "";
+    message.iss = object.iss ?? "";
     return message;
   },
 };

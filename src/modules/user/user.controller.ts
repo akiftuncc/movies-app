@@ -6,8 +6,14 @@ import {
   Logger,
   Post,
   UsePipes,
+  UseGuards,
 } from '@nestjs/common';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import {
   BuyTicketResponse,
   ViewWatchHistoryResponse,
@@ -34,12 +40,22 @@ import { LoginRequestDto } from '@/dto/customer/request/login-request.dto';
 import { RegisterRequestDto } from '@/dto/customer/request/register-request.dto';
 import { RegisterResponseDto } from '@/dto/customer/response/register-response.dto';
 import { EmptyResponseDto } from '@/dto/general/response/empty-response.dto';
+import { JwtService } from '@nestjs/jwt';
+import {
+  AppAuthGuard,
+  AppRoleGuard,
+  findUserIdByAuthHeader,
+} from '@/utils/user-functions';
 
 @ApiTags('user')
 @Controller('user')
+@ApiBearerAuth()
 export class UserController {
   private readonly logger = new Logger(UserController.name);
-  constructor(private readonly userService: UserService) {}
+  constructor(
+    private readonly userService: UserService,
+    private readonly jwtService: JwtService,
+  ) {}
 
   @ApiOperation({ summary: 'List movies' })
   @Post('list-movies')
@@ -48,6 +64,7 @@ export class UserController {
     description: 'List movies',
     type: ListMoviesResponseDto,
   })
+  @UseGuards(AppAuthGuard)
   @UsePipes(new ZodValidationPipe(PaginateRequestDto))
   async listMovies(
     @Body() body: PaginateRequestDto,
@@ -61,13 +78,13 @@ export class UserController {
   @Post('login')
   @ApiResponse({
     status: 200,
-    description: 'List movies',
+    description: 'Login',
     type: LoginResponseDto,
   })
   @UsePipes(new ZodValidationPipe(LoginRequestDto))
   async login(@Body() body: LoginRequestDto): Promise<LoginResponse> {
     const response = await this.userService.login(body);
-    return { data: response, status: { code: 200 } };
+    return response;
   }
 
   @ApiOperation({ summary: 'Register' })
@@ -80,7 +97,7 @@ export class UserController {
   @UsePipes(new ZodValidationPipe(RegisterRequestDto))
   async register(@Body() body: RegisterRequestDto): Promise<RegisterResponse> {
     const response = await this.userService.register(body);
-    return { data: response, status: { code: 200 } };
+    return response;
   }
 
   @ApiOperation({ summary: 'Delete User' })
@@ -90,8 +107,11 @@ export class UserController {
     type: EmptyResponseDto,
   })
   @Get('delete')
-  async delete(): Promise<EmptyResponse> {
-    await this.userService.delete();
-    return { status: { code: 200 } };
+  async delete(
+    @Headers('Authorization') authHeader: string,
+  ): Promise<EmptyResponse> {
+    const userId = findUserIdByAuthHeader(authHeader);
+
+    return this.userService.delete({ id: userId });
   }
 }

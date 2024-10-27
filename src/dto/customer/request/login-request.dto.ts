@@ -5,8 +5,8 @@ import { ApiProperty } from '@nestjs/swagger';
 import { LoginRequest } from 'proto-generated/user_messages';
 
 const loginRequestDefinition: Record<keyof LoginRequest, z.ZodTypeAny> = {
-  username: z.string(),
-  password: z.string(),
+  username: z.string().min(3),
+  password: z.string().min(3),
 };
 
 const LoginRequestSchema = interfaceToZod<LoginRequest>(loginRequestDefinition);
@@ -16,5 +16,5 @@ export class LoginRequestDto extends createZodDto(LoginRequestSchema) {
   username: string;
 
   @ApiProperty({ example: 'password' })
-  passowrd: string;
+  password: string;
 }

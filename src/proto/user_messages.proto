@@ -1,14 +1,21 @@
-// src/proto/user.proto
+
 syntax = "proto3";
 
 package user;
 
 import "general.proto";
 
+message MovieSessionsDto {
+  string date = 1;
+  string hour = 2;
+  int32 room =3;
+  repeated string available_tickets = 4;
+}
+
 message MovieDto {
   string id = 1;
-  string name = 2;
-  int32 age_restriction = 3;
+  string movie_name = 2;
+  repeated MovieSessionsDto movie_sessions = 5;
 }
 
 message ListMoviesResponse {
@@ -38,4 +45,11 @@ message LoginRequest {
 message LoginResponse {
   general.ResponseStatus status = 1;
   string access_token = 2;
+}
+
+message JwtUser {
+  string username = 1;
+  string sub = 2;
+  string role = 3;
+  string iss = 4;
 }

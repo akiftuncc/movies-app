@@ -1,10 +1,12 @@
 import * as bcrypt from 'bcrypt';
 import { TICKET_NUMBERS, userConstants, X_INTERNAL_HASH } from './constants';
-import { Movie, PrismaClient, TimeSlot } from '@prisma/client';
+import { Movie, PrismaClient, TimeSlot, UserType } from '@prisma/client';
 import { Logger } from '@nestjs/common';
 import { format } from 'date-fns';
 import crypto from 'crypto';
 import * as jwt from 'jsonwebtoken';
+import { JwtUser } from 'proto-generated/user_messages';
+import { CONFIG_ENV } from '@/config/config';
 const prisma = new PrismaClient();
 const logger = new Logger('Seeding - Tickets');
 
@@ -39,7 +41,7 @@ export const isMovieExist = async (uniqueName: string): Promise<Movie> => {
   }
 };
 
-const timeSlotToTime = (timeSlot: string): string => {
+export const timeSlotToTime = (timeSlot: string): string => {
   switch (timeSlot) {
     case TimeSlot.SLOT_10_12:
       return '10:00:00';
@@ -59,6 +61,14 @@ const timeSlotToTime = (timeSlot: string): string => {
       throw new Error(`Unknown time slot: ${timeSlot}`);
   }
 };
+
+export function formatDateToReadableString(date: Date): string {
+  const day = String(date.getUTCDate()).padStart(2, '0');
+  const month = String(date.getUTCMonth() + 1).padStart(2, '0');
+  const year = date.getUTCFullYear();
+
+  return `${day}-${month}-${year}`;
+}
 
 export const formatDate = (date: Date, timeSlot: TimeSlot) => {
   const time = timeSlotToTime(timeSlot);
@@ -86,24 +96,8 @@ export const generateTickets = async (sessionId: string) => {
   });
 };
 
-export const getMetadata = (clientJwt: string, jwtSecret: string) => {
-  const token = clientJwt.startsWith('Bearer ')
-    ? clientJwt.substring(7).trim()
-    : clientJwt;
-  const headers = {
-    authorization: `Bearer ${token}`,
-    [X_INTERNAL_HASH]: crypto
-      .createHash('md5')
-      .update(jwtSecret)
-      .digest('hex')
-      .toLowerCase(),
-  };
-  return headers;
-};
-
 export const getEnv = (key: string, defaultVal?: any): string => {
   const result = process.env[key];
-
   if (typeof result === 'undefined') {
     if (defaultVal) {
       return defaultVal;
@@ -111,6 +105,5 @@ export const getEnv = (key: string, defaultVal?: any): string => {
       throw new Error(key + ' not defined in env.');
     }
   }
-
   return result;
 };

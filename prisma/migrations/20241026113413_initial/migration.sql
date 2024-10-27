@@ -4,7 +4,7 @@ CREATE TABLE `users` (
     `username` VARCHAR(191) NOT NULL,
     `password` VARCHAR(191) NOT NULL,
     `age` INTEGER NOT NULL,
-    `type` ENUM('MANAGER', 'CUSTOMER') NOT NULL DEFAULT 'CUSTOMER',
+    `type` ENUM('MANAGER', 'CUSTOMER', 'UNRECOGNIZED') NOT NULL DEFAULT 'CUSTOMER',
     `created_at` DATETIME(0) NOT NULL DEFAULT CURRENT_TIMESTAMP(0),
     `updated_at` DATETIME(0) NOT NULL,
     `deleted_at` DATETIME(0) NULL,
@@ -45,6 +45,7 @@ CREATE TABLE `sessions` (
 CREATE TABLE `tickets` (
     `id` VARCHAR(191) NOT NULL,
     `ticketNumber` INTEGER NOT NULL,
+    `isUsed` BOOLEAN NOT NULL DEFAULT false,
     `created_at` DATETIME(0) NOT NULL DEFAULT CURRENT_TIMESTAMP(0),
     `deleted_at` DATETIME(0) NULL,
     `userId` VARCHAR(191) NULL,

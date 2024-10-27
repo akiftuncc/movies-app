@@ -84,4 +84,5 @@ enum TimeSlot {
 enum UserType {
   MANAGER
   CUSTOMER
+  UNRECOGNIZED
 }
