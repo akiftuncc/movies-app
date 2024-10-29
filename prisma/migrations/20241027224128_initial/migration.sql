@@ -52,7 +52,6 @@ CREATE TABLE `tickets` (
     `sessionId` VARCHAR(191) NOT NULL,
 
     UNIQUE INDEX `tickets_sessionId_ticketNumber_key`(`sessionId`, `ticketNumber`),
-    UNIQUE INDEX `tickets_sessionId_userId_key`(`sessionId`, `userId`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 

@@ -67,7 +67,7 @@ model Ticket {
   sessionId String
   session Session @relation(fields: [sessionId], references: [id])
   @@unique([sessionId, ticketNumber])
-  @@unique([sessionId,userId])
+  
   @@map("tickets")
 }
 

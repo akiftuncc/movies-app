@@ -3,8 +3,8 @@ import { interfaceToZod } from '@/utils/zod-functions';
 import { ApiProperty } from '@nestjs/swagger';
 import { z } from 'zod';
 
-import { ListMoviesResponse } from 'proto-generated/user_messages';
-import { ResponseStatus } from 'proto-generated/general';
+import { ListMoviesResponse, MovieDto } from 'proto-generated/user_messages';
+import { PaginationMetaResult, ResponseStatus } from 'proto-generated/general';
 
 const listMoviesResponseDefinition: Record<
   keyof ListMoviesResponse,
@@ -23,9 +23,8 @@ const listMoviesResponseDefinition: Record<
     }),
   ),
   pagination: z.object({
-    total: z.number(),
-    page: z.number(),
-    limit: z.number(),
+    recordsTotal: z.number(),
+    recordsFiltered: z.number(),
   }),
 };
 
@@ -44,4 +43,25 @@ export class ListMoviesResponseDto extends createZodDto(
     description: 'Status code of the response',
   })
   status: ResponseStatus;
+
+  @ApiProperty({
+    example: [
+      {
+        id: '1',
+        movieName: 'Movie 1',
+        movieSessions: [],
+      },
+    ],
+    description: 'List of movies',
+  })
+  movies: MovieDto[];
+
+  @ApiProperty({
+    example: {
+      recordsTotal: 10,
+      recordsFiltered: 10,
+    },
+    description: 'Pagination of the response',
+  })
+  pagination: PaginationMetaResult;
 }

@@ -3,14 +3,27 @@ export function prismaWhereCreatorWithTable(
   valueKey: string,
   type: string,
   value: any,
+  isMany: boolean = true,
 ) {
+  //BURADA
+  if (isMany) {
+    return {
+      where: {
+        [table]: {
+          some: {
+            [valueKey]: {
+              [type]: value,
+            },
+          },
+        },
+      },
+    };
+  }
   return {
     where: {
       [table]: {
-        some: {
-          [valueKey]: {
-            [type]: value,
-          },
+        [valueKey]: {
+          [type]: value,
         },
       },
     },

@@ -7,11 +7,8 @@
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 import { PaginationMetaResult, ResponseStatus } from "./general";
-import { MovieDto } from "./user_messages";
 
 export const protobufPackage = "customer";
-
-/** src/proto/movie.proto */
 
 export interface ViewWatchHistoryRequest {
   userId: string;
@@ -27,6 +24,19 @@ export interface WatchedMovieDto {
   id: string;
   name: string;
   watchDate: string;
+  watchTime: string;
+}
+
+export interface WatchMovieDto {
+  movieName: string;
+  movieDate: string;
+  movieTime: string;
+  roomNumber: number;
+}
+
+export interface WatchMovieResponse {
+  status: ResponseStatus | undefined;
+  data: WatchMovieDto | undefined;
 }
 
 export interface TicketDto {
@@ -40,14 +50,11 @@ export interface BuyTicketResponse {
   data: TicketDto | undefined;
 }
 
-export interface WatchMovieRequest {
-  userId: string;
-  ticketId: string;
-}
-
-export interface WatchMovieResponse {
-  status: ResponseStatus | undefined;
-  movie: MovieDto | undefined;
+export interface movieDto {
+  id: string;
+  name: string;
+  date: string;
+  time: string;
 }
 
 function createBaseViewWatchHistoryRequest(): ViewWatchHistoryRequest {
@@ -205,7 +212,7 @@ export const ViewWatchHistoryResponse: MessageFns<ViewWatchHistoryResponse> = {
 };
 
 function createBaseWatchedMovieDto(): WatchedMovieDto {
-  return { id: "", name: "", watchDate: "" };
+  return { id: "", name: "", watchDate: "", watchTime: "" };
 }
 
 export const WatchedMovieDto: MessageFns<WatchedMovieDto> = {
@@ -218,6 +225,9 @@ export const WatchedMovieDto: MessageFns<WatchedMovieDto> = {
     }
     if (message.watchDate !== "") {
       writer.uint32(26).string(message.watchDate);
+    }
+    if (message.watchTime !== "") {
+      writer.uint32(34).string(message.watchTime);
     }
     return writer;
   },
@@ -253,6 +263,14 @@ export const WatchedMovieDto: MessageFns<WatchedMovieDto> = {
           message.watchDate = reader.string();
           continue;
         }
+        case 4: {
+          if (tag !== 34) {
+            break;
+          }
+
+          message.watchTime = reader.string();
+          continue;
+        }
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -267,6 +285,7 @@ export const WatchedMovieDto: MessageFns<WatchedMovieDto> = {
       id: isSet(object.id) ? globalThis.String(object.id) : "",
       name: isSet(object.name) ? globalThis.String(object.name) : "",
       watchDate: isSet(object.watchDate) ? globalThis.String(object.watchDate) : "",
+      watchTime: isSet(object.watchTime) ? globalThis.String(object.watchTime) : "",
     };
   },
 
@@ -281,6 +300,9 @@ export const WatchedMovieDto: MessageFns<WatchedMovieDto> = {
     if (message.watchDate !== "") {
       obj.watchDate = message.watchDate;
     }
+    if (message.watchTime !== "") {
+      obj.watchTime = message.watchTime;
+    }
     return obj;
   },
 
@@ -292,6 +314,195 @@ export const WatchedMovieDto: MessageFns<WatchedMovieDto> = {
     message.id = object.id ?? "";
     message.name = object.name ?? "";
     message.watchDate = object.watchDate ?? "";
+    message.watchTime = object.watchTime ?? "";
+    return message;
+  },
+};
+
+function createBaseWatchMovieDto(): WatchMovieDto {
+  return { movieName: "", movieDate: "", movieTime: "", roomNumber: 0 };
+}
+
+export const WatchMovieDto: MessageFns<WatchMovieDto> = {
+  encode(message: WatchMovieDto, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.movieName !== "") {
+      writer.uint32(10).string(message.movieName);
+    }
+    if (message.movieDate !== "") {
+      writer.uint32(18).string(message.movieDate);
+    }
+    if (message.movieTime !== "") {
+      writer.uint32(26).string(message.movieTime);
+    }
+    if (message.roomNumber !== 0) {
+      writer.uint32(32).int32(message.roomNumber);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): WatchMovieDto {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseWatchMovieDto();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.movieName = reader.string();
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.movieDate = reader.string();
+          continue;
+        }
+        case 3: {
+          if (tag !== 26) {
+            break;
+          }
+
+          message.movieTime = reader.string();
+          continue;
+        }
+        case 4: {
+          if (tag !== 32) {
+            break;
+          }
+
+          message.roomNumber = reader.int32();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): WatchMovieDto {
+    return {
+      movieName: isSet(object.movieName) ? globalThis.String(object.movieName) : "",
+      movieDate: isSet(object.movieDate) ? globalThis.String(object.movieDate) : "",
+      movieTime: isSet(object.movieTime) ? globalThis.String(object.movieTime) : "",
+      roomNumber: isSet(object.roomNumber) ? globalThis.Number(object.roomNumber) : 0,
+    };
+  },
+
+  toJSON(message: WatchMovieDto): unknown {
+    const obj: any = {};
+    if (message.movieName !== "") {
+      obj.movieName = message.movieName;
+    }
+    if (message.movieDate !== "") {
+      obj.movieDate = message.movieDate;
+    }
+    if (message.movieTime !== "") {
+      obj.movieTime = message.movieTime;
+    }
+    if (message.roomNumber !== 0) {
+      obj.roomNumber = Math.round(message.roomNumber);
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<WatchMovieDto>, I>>(base?: I): WatchMovieDto {
+    return WatchMovieDto.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<WatchMovieDto>, I>>(object: I): WatchMovieDto {
+    const message = createBaseWatchMovieDto();
+    message.movieName = object.movieName ?? "";
+    message.movieDate = object.movieDate ?? "";
+    message.movieTime = object.movieTime ?? "";
+    message.roomNumber = object.roomNumber ?? 0;
+    return message;
+  },
+};
+
+function createBaseWatchMovieResponse(): WatchMovieResponse {
+  return { status: undefined, data: undefined };
+}
+
+export const WatchMovieResponse: MessageFns<WatchMovieResponse> = {
+  encode(message: WatchMovieResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.status !== undefined) {
+      ResponseStatus.encode(message.status, writer.uint32(10).fork()).join();
+    }
+    if (message.data !== undefined) {
+      WatchMovieDto.encode(message.data, writer.uint32(18).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): WatchMovieResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseWatchMovieResponse();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.status = ResponseStatus.decode(reader, reader.uint32());
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.data = WatchMovieDto.decode(reader, reader.uint32());
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): WatchMovieResponse {
+    return {
+      status: isSet(object.status) ? ResponseStatus.fromJSON(object.status) : undefined,
+      data: isSet(object.data) ? WatchMovieDto.fromJSON(object.data) : undefined,
+    };
+  },
+
+  toJSON(message: WatchMovieResponse): unknown {
+    const obj: any = {};
+    if (message.status !== undefined) {
+      obj.status = ResponseStatus.toJSON(message.status);
+    }
+    if (message.data !== undefined) {
+      obj.data = WatchMovieDto.toJSON(message.data);
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<WatchMovieResponse>, I>>(base?: I): WatchMovieResponse {
+    return WatchMovieResponse.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<WatchMovieResponse>, I>>(object: I): WatchMovieResponse {
+    const message = createBaseWatchMovieResponse();
+    message.status = (object.status !== undefined && object.status !== null)
+      ? ResponseStatus.fromPartial(object.status)
+      : undefined;
+    message.data = (object.data !== undefined && object.data !== null)
+      ? WatchMovieDto.fromPartial(object.data)
+      : undefined;
     return message;
   },
 };
@@ -466,25 +677,31 @@ export const BuyTicketResponse: MessageFns<BuyTicketResponse> = {
   },
 };
 
-function createBaseWatchMovieRequest(): WatchMovieRequest {
-  return { userId: "", ticketId: "" };
+function createBasemovieDto(): movieDto {
+  return { id: "", name: "", date: "", time: "" };
 }
 
-export const WatchMovieRequest: MessageFns<WatchMovieRequest> = {
-  encode(message: WatchMovieRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.userId !== "") {
-      writer.uint32(10).string(message.userId);
+export const movieDto: MessageFns<movieDto> = {
+  encode(message: movieDto, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.id !== "") {
+      writer.uint32(10).string(message.id);
     }
-    if (message.ticketId !== "") {
-      writer.uint32(18).string(message.ticketId);
+    if (message.name !== "") {
+      writer.uint32(18).string(message.name);
+    }
+    if (message.date !== "") {
+      writer.uint32(26).string(message.date);
+    }
+    if (message.time !== "") {
+      writer.uint32(34).string(message.time);
     }
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): WatchMovieRequest {
+  decode(input: BinaryReader | Uint8Array, length?: number): movieDto {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseWatchMovieRequest();
+    const message = createBasemovieDto();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -493,7 +710,7 @@ export const WatchMovieRequest: MessageFns<WatchMovieRequest> = {
             break;
           }
 
-          message.userId = reader.string();
+          message.id = reader.string();
           continue;
         }
         case 2: {
@@ -501,7 +718,23 @@ export const WatchMovieRequest: MessageFns<WatchMovieRequest> = {
             break;
           }
 
-          message.ticketId = reader.string();
+          message.name = reader.string();
+          continue;
+        }
+        case 3: {
+          if (tag !== 26) {
+            break;
+          }
+
+          message.date = reader.string();
+          continue;
+        }
+        case 4: {
+          if (tag !== 34) {
+            break;
+          }
+
+          message.time = reader.string();
           continue;
         }
       }
@@ -513,111 +746,41 @@ export const WatchMovieRequest: MessageFns<WatchMovieRequest> = {
     return message;
   },
 
-  fromJSON(object: any): WatchMovieRequest {
+  fromJSON(object: any): movieDto {
     return {
-      userId: isSet(object.userId) ? globalThis.String(object.userId) : "",
-      ticketId: isSet(object.ticketId) ? globalThis.String(object.ticketId) : "",
+      id: isSet(object.id) ? globalThis.String(object.id) : "",
+      name: isSet(object.name) ? globalThis.String(object.name) : "",
+      date: isSet(object.date) ? globalThis.String(object.date) : "",
+      time: isSet(object.time) ? globalThis.String(object.time) : "",
     };
   },
 
-  toJSON(message: WatchMovieRequest): unknown {
+  toJSON(message: movieDto): unknown {
     const obj: any = {};
-    if (message.userId !== "") {
-      obj.userId = message.userId;
+    if (message.id !== "") {
+      obj.id = message.id;
     }
-    if (message.ticketId !== "") {
-      obj.ticketId = message.ticketId;
+    if (message.name !== "") {
+      obj.name = message.name;
+    }
+    if (message.date !== "") {
+      obj.date = message.date;
+    }
+    if (message.time !== "") {
+      obj.time = message.time;
     }
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<WatchMovieRequest>, I>>(base?: I): WatchMovieRequest {
-    return WatchMovieRequest.fromPartial(base ?? ({} as any));
+  create<I extends Exact<DeepPartial<movieDto>, I>>(base?: I): movieDto {
+    return movieDto.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<WatchMovieRequest>, I>>(object: I): WatchMovieRequest {
-    const message = createBaseWatchMovieRequest();
-    message.userId = object.userId ?? "";
-    message.ticketId = object.ticketId ?? "";
-    return message;
-  },
-};
-
-function createBaseWatchMovieResponse(): WatchMovieResponse {
-  return { status: undefined, movie: undefined };
-}
-
-export const WatchMovieResponse: MessageFns<WatchMovieResponse> = {
-  encode(message: WatchMovieResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.status !== undefined) {
-      ResponseStatus.encode(message.status, writer.uint32(10).fork()).join();
-    }
-    if (message.movie !== undefined) {
-      MovieDto.encode(message.movie, writer.uint32(18).fork()).join();
-    }
-    return writer;
-  },
-
-  decode(input: BinaryReader | Uint8Array, length?: number): WatchMovieResponse {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
-    let end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseWatchMovieResponse();
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1: {
-          if (tag !== 10) {
-            break;
-          }
-
-          message.status = ResponseStatus.decode(reader, reader.uint32());
-          continue;
-        }
-        case 2: {
-          if (tag !== 18) {
-            break;
-          }
-
-          message.movie = MovieDto.decode(reader, reader.uint32());
-          continue;
-        }
-      }
-      if ((tag & 7) === 4 || tag === 0) {
-        break;
-      }
-      reader.skip(tag & 7);
-    }
-    return message;
-  },
-
-  fromJSON(object: any): WatchMovieResponse {
-    return {
-      status: isSet(object.status) ? ResponseStatus.fromJSON(object.status) : undefined,
-      movie: isSet(object.movie) ? MovieDto.fromJSON(object.movie) : undefined,
-    };
-  },
-
-  toJSON(message: WatchMovieResponse): unknown {
-    const obj: any = {};
-    if (message.status !== undefined) {
-      obj.status = ResponseStatus.toJSON(message.status);
-    }
-    if (message.movie !== undefined) {
-      obj.movie = MovieDto.toJSON(message.movie);
-    }
-    return obj;
-  },
-
-  create<I extends Exact<DeepPartial<WatchMovieResponse>, I>>(base?: I): WatchMovieResponse {
-    return WatchMovieResponse.fromPartial(base ?? ({} as any));
-  },
-  fromPartial<I extends Exact<DeepPartial<WatchMovieResponse>, I>>(object: I): WatchMovieResponse {
-    const message = createBaseWatchMovieResponse();
-    message.status = (object.status !== undefined && object.status !== null)
-      ? ResponseStatus.fromPartial(object.status)
-      : undefined;
-    message.movie = (object.movie !== undefined && object.movie !== null)
-      ? MovieDto.fromPartial(object.movie)
-      : undefined;
+  fromPartial<I extends Exact<DeepPartial<movieDto>, I>>(object: I): movieDto {
+    const message = createBasemovieDto();
+    message.id = object.id ?? "";
+    message.name = object.name ?? "";
+    message.date = object.date ?? "";
+    message.time = object.time ?? "";
     return message;
   },
 };

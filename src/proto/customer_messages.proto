@@ -4,12 +4,11 @@ syntax = "proto3";
 package customer;
 
 import "general.proto";
-import "user_messages.proto";
 
 message ViewWatchHistoryRequest {
     string user_id = 1;
   }
-  
+
   message ViewWatchHistoryResponse {
     repeated WatchedMovieDto data = 1;
     general.ResponseStatus status = 2;
@@ -20,6 +19,18 @@ message ViewWatchHistoryRequest {
     string id = 1;
     string name = 2;
     string watch_date = 3; 
+    string watch_time = 4;
+  }
+
+  message WatchMovieDto{
+    string movie_name = 1;
+    string movie_date = 2;
+    string movie_time = 3;
+    int32 room_number = 4;
+  }
+  message WatchMovieResponse {
+    general.ResponseStatus status = 1;
+    WatchMovieDto data = 2;
   }
 
   message TicketDto {
@@ -33,14 +44,12 @@ message ViewWatchHistoryRequest {
     TicketDto data = 2;
   }
   
-  message WatchMovieRequest {
-    string user_id = 1;
-    string ticket_id = 2;
-  }
+  
+  message movieDto {
+    string id = 1;
+    string name = 2;
+    string date = 3;
+    string time = 4;
 
-  
-  
-  message WatchMovieResponse {
-    general.ResponseStatus status = 1;
-    user.MovieDto movie = 2;
   }
+  

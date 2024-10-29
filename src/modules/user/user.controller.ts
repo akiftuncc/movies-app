@@ -33,12 +33,12 @@ import {
 } from 'proto-generated/user_messages';
 import { UserService } from './user.service';
 import { ZodValidationPipe } from 'nestjs-zod';
-import { ListMoviesResponseDto } from '@/dto/customer/response/list-movies.response.dto';
+import { ListMoviesResponseDto } from '@/dto/user/response/list-movies.response.dto';
 import { PaginateRequestDto } from '@/dto/general/request/paginate-request.dto';
-import { LoginResponseDto } from '@/dto/customer/response/login-response.dto';
-import { LoginRequestDto } from '@/dto/customer/request/login-request.dto';
-import { RegisterRequestDto } from '@/dto/customer/request/register-request.dto';
-import { RegisterResponseDto } from '@/dto/customer/response/register-response.dto';
+import { LoginResponseDto } from '@/dto/user/response/login-response.dto';
+import { LoginRequestDto } from '@/dto/user/request/login-request.dto';
+import { RegisterRequestDto } from '@/dto/user/request/register-request.dto';
+import { RegisterResponseDto } from '@/dto/user/response/register-response.dto';
 import { EmptyResponseDto } from '@/dto/general/response/empty-response.dto';
 import { JwtService } from '@nestjs/jwt';
 import {
@@ -70,8 +70,7 @@ export class UserController {
     @Body() body: PaginateRequestDto,
     @Headers('Authorization') headers,
   ): Promise<ListMoviesResponse> {
-    const response = await this.userService.listMovies(body);
-    return response;
+    return await this.userService.listMovies(body);
   }
 
   @ApiOperation({ summary: 'Login' })
@@ -83,8 +82,7 @@ export class UserController {
   })
   @UsePipes(new ZodValidationPipe(LoginRequestDto))
   async login(@Body() body: LoginRequestDto): Promise<LoginResponse> {
-    const response = await this.userService.login(body);
-    return response;
+    return await this.userService.login(body);
   }
 
   @ApiOperation({ summary: 'Register' })
@@ -96,8 +94,7 @@ export class UserController {
   })
   @UsePipes(new ZodValidationPipe(RegisterRequestDto))
   async register(@Body() body: RegisterRequestDto): Promise<RegisterResponse> {
-    const response = await this.userService.register(body);
-    return response;
+    return await this.userService.register(body);
   }
 
   @ApiOperation({ summary: 'Delete User' })
@@ -111,7 +108,6 @@ export class UserController {
     @Headers('Authorization') authHeader: string,
   ): Promise<EmptyResponse> {
     const userId = findUserIdByAuthHeader(authHeader);
-
-    return this.userService.delete({ id: userId });
+    return await this.userService.delete({ id: userId });
   }
 }

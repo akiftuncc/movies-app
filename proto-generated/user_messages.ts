@@ -10,8 +10,6 @@ import { PaginationMetaResult, ResponseStatus, UserType, userTypeFromJSON, userT
 
 export const protobufPackage = "user";
 
-/** src/proto/user.proto */
-
 export interface MovieSessionsDto {
   date: string;
   hour: string;

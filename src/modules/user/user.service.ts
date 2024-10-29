@@ -1,4 +1,4 @@
-import { MovieWithSessionsAndTickets } from '@/types/user-types';
+import { MovieWithSessionsAndTickets } from '@/types/prisma-included-types';
 import { listMoviesNormalizer } from '@/utils/normalizers/user.normalizers';
 
 import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common';
@@ -14,6 +14,7 @@ import {
   EmptyRequest,
   EmptyResponse,
   PaginateRequest,
+  ResponseStatus,
 } from 'proto-generated/general';
 import { PUserService } from 'proto-generated/services';
 import {
@@ -33,6 +34,7 @@ import {
   userTypeToReadableString,
 } from '@/utils/user-functions';
 import { CONFIG_ENV } from '@/config/config';
+import { StatusCode } from '@/utils/constants';
 
 @Injectable()
 export class UserService implements OnModuleInit, PUserService {
@@ -62,25 +64,33 @@ export class UserService implements OnModuleInit, PUserService {
     };
   }
 
-  private async isValidUserRegister(request: RegisterRequest) {
+  private async registerStatus(
+    request: RegisterRequest,
+  ): Promise<ResponseStatus> {
     const existUser = await this.prisma.user.findFirst({
       where: { username: request.username, deletedAt: null },
     });
     if (existUser) {
       this.logger.error('User already exists');
-      return { status: { code: 400, message: 'User already exists' } };
+      return {
+        code: StatusCode.BAD_REQUEST,
+        error: { errors: ['User already exists.'] },
+      };
     }
     if (request.password !== request.passwordConfirmation) {
       this.logger.error('Passwords are not matching.');
-      return { status: { code: 400, message: 'Passwords are not matching.' } };
+      return {
+        code: StatusCode.BAD_REQUEST,
+        error: { errors: ['Passwords are not matching.'] },
+      };
     }
-    return { status: { code: 200 } };
+    return { code: StatusCode.SUCCESS };
   }
 
   async register(request: RegisterRequest): Promise<RegisterResponse> {
-    const status = await this.isValidUserRegister(request);
-    if (status.status.code !== 200) {
-      return { ...status, accessToken: '' };
+    const status = await this.registerStatus(request);
+    if (status.code !== StatusCode.SUCCESS) {
+      return { status, accessToken: '' };
     }
     const user = await this.prisma.user.create({
       data: {
@@ -92,51 +102,70 @@ export class UserService implements OnModuleInit, PUserService {
     const payload = payloadCreator(user);
     const token = jwtCreator(payload);
 
-    return { accessToken: token, ...status };
+    return { accessToken: token, status };
   }
 
-  private async isValidUserLogin(request: LoginRequest, user: User) {
+  private async loginStatus(
+    request: LoginRequest,
+    user: User,
+  ): Promise<ResponseStatus> {
     if (!user) {
       this.logger.error('User not found.');
-      return { status: { code: 400, message: 'User not found.' } };
+      return {
+        code: StatusCode.NOT_FOUND,
+        error: { errors: ['User not found.'] },
+      };
     }
     if (!isPasswordEqual(request.password, user.password)) {
       this.logger.error('Wrong password.');
-      return { status: { code: 400, message: 'Wrong password.' } };
+      return {
+        code: StatusCode.BAD_REQUEST,
+        error: { errors: ['Wrong password.'] },
+      };
     }
-    return { status: { code: 200 } };
+    return { code: StatusCode.SUCCESS };
   }
 
   async login(request: LoginRequest): Promise<LoginResponse> {
     const user = await this.prisma.user.findUnique({
       where: { username: request.username, deletedAt: null },
     });
-    const status = await this.isValidUserLogin(request, user);
-    if (status.status.code !== 200) {
-      return { ...status, accessToken: '' };
+    const status = await this.loginStatus(request, user);
+    if (status.code !== StatusCode.SUCCESS) {
+      return { status: status, accessToken: '' };
     }
 
     const payload = payloadCreator(user);
     const token = jwtCreator(payload);
 
-    return { accessToken: token, ...status };
+    return { accessToken: token, status };
+  }
+
+  private async deleteStatus(username: string): Promise<ResponseStatus> {
+    if (!username) {
+      this.logger.error('User not found.');
+      return {
+        code: StatusCode.NOT_FOUND,
+        error: { errors: ['User not found.'] },
+      };
+    }
+    return { code: StatusCode.SUCCESS };
   }
   async delete(request: ByIdRequest): Promise<EmptyResponse> {
     const username = await this.prisma.user.findUnique({
       where: { id: request.id, deletedAt: null },
       select: { username: true },
     });
-    if (!username) {
-      this.logger.error('User not found.');
-      return {
-        status: { code: 400, error: { errors: ['User not found.'] } },
-      };
+
+    const status = await this.deleteStatus(username.username);
+    if (status.code !== StatusCode.SUCCESS) {
+      return { status };
     }
     await this.prisma.user.update({
       where: { id: request.id, deletedAt: null },
       data: prismaDeletedAt('username', username.username),
     });
-    return { status: { code: 200 } };
+    return { status };
   }
 
   onModuleInit() {

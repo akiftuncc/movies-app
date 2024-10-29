@@ -1,4 +1,4 @@
-import { MovieWithSessionsAndTickets } from '@/types/user-types';
+import { MovieWithSessionsAndTickets } from '@/types/prisma-included-types';
 import { Movie } from '@prisma/client';
 import { MovieDto } from 'proto-generated/user_messages';
 import { formatDateToReadableString, timeSlotToTime } from '../functions';
