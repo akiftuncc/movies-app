@@ -4,7 +4,12 @@ import {
   UserWithTicketsAndSessions,
 } from '@/types/prisma-included-types';
 import { StatusCode } from '@/utils/constants';
-import { formatDateToReadableString, timeSlotToTime } from '@/utils/functions';
+import {
+  checkConditions,
+  formatDateToReadableString,
+  responseStatusCreator,
+  timeSlotToTime,
+} from '@/utils/functions';
 import { ticketNormalizer } from '@/utils/normalizers/customer.normalizers';
 import {
   prismaPaginateCreator,
@@ -12,7 +17,7 @@ import {
 } from '@/utils/prisma-functions';
 import { findUserIdByAuthHeader } from '@/utils/user-functions';
 import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common';
-import { Movie, PrismaClient, Ticket, User } from '@prisma/client';
+import { Movie, Prisma, PrismaClient, Ticket, User } from '@prisma/client';
 import {
   BuyTicketResponse,
   WatchMovieResponse,
@@ -36,36 +41,24 @@ export class CustomerService implements OnModuleInit, PCustomerService {
     ticket: TicketWithSessionAndMovie,
     userAge: number,
   ): ResponseStatus {
-    if (!ticket) {
-      this.logger.error('Ticket Not Found');
-      return {
-        code: StatusCode.NOT_FOUND,
-        error: { errors: ['Ticket Not Found.'] },
-      };
-    }
-    if (ticket.userId) {
-      this.logger.error('Ticket Already Sold');
-      return {
-        code: StatusCode.BAD_REQUEST,
-        error: { errors: ['Ticket Already Sold.'] },
-      };
-    }
-    if (ticket.session.movie.ageRestriction > userAge) {
-      this.logger.error('User Age Not Allowed To This Movie');
-      return {
-        code: StatusCode.BAD_REQUEST,
-        error: { errors: ['User Age Not Allowed To This Movie.'] },
-      };
-    }
-
-    return { code: StatusCode.SUCCESS };
+    const conditions = [
+      { bool: !ticket, err: 'Ticket Not Found', status: StatusCode.NOT_FOUND },
+      {
+        bool: !!ticket?.userId,
+        err: 'Ticket Already Sold',
+        status: StatusCode.BAD_REQUEST,
+      },
+      {
+        bool: ticket?.session?.movie?.ageRestriction > userAge,
+        err: 'User Age Not Allowed To This Movie',
+        status: StatusCode.BAD_REQUEST,
+      },
+    ];
+    return checkConditions(conditions);
   }
 
-  async buyTicket(
-    request: ByIdRequest,
-    userId?: string,
-  ): Promise<BuyTicketResponse> {
-    const where = {
+  private buyTicketWhereCreator(request: ByIdRequest) {
+    return {
       id: request.id,
       deletedAt: null,
       ...prismaWhereCreatorWithTable(
@@ -76,11 +69,17 @@ export class CustomerService implements OnModuleInit, PCustomerService {
         false,
       ).where,
     };
-    const userAge = await this.prisma.user.findUnique({
+  }
+
+  private async buyTicketUserAge(userId: string) {
+    return await this.prisma.user.findUnique({
       where: { id: userId },
       select: { age: true },
     });
-    const ticketDb = await this.prisma.ticket.findUnique({
+  }
+
+  private async buyTicketValidTicket(where: Prisma.TicketWhereUniqueInput) {
+    return await this.prisma.ticket.findUnique({
       include: {
         session: {
           include: {
@@ -90,11 +89,13 @@ export class CustomerService implements OnModuleInit, PCustomerService {
       },
       where,
     });
-    const status = this.ticketStatus(ticketDb, userAge.age);
-    if (status.code !== StatusCode.SUCCESS) {
-      return { status, data: null };
-    }
-    const ticket: TicketWithSessionAndMovie = await this.prisma.ticket.update({
+  }
+
+  private async buyTicketPrisma(
+    where: Prisma.TicketWhereUniqueInput,
+    userId: string,
+  ): Promise<TicketWithSessionAndMovie> {
+    return await this.prisma.ticket.update({
       include: {
         session: {
           include: {
@@ -107,53 +108,49 @@ export class CustomerService implements OnModuleInit, PCustomerService {
         userId: userId,
       },
     });
+  }
+
+  async buyTicket(
+    request: ByIdRequest,
+    userId?: string,
+  ): Promise<BuyTicketResponse> {
+    const where = this.buyTicketWhereCreator(request);
+    const userAge = await this.buyTicketUserAge(userId);
+    const ticketDb = await this.buyTicketValidTicket(where);
+
+    const status = this.ticketStatus(ticketDb, userAge.age);
+    if (status.code !== StatusCode.SUCCESS) {
+      return { status, data: null };
+    }
+
+    const ticket = await this.buyTicketPrisma(where, userId);
     const ticketDto = ticketNormalizer(ticket);
     return { data: ticketDto, status };
   }
 
   private watchMovieStatus(
-    movie: Movie,
-    user: UserWithTicketsAndSessions,
+    movie: Movie | null,
+    user: UserWithTicketsAndSessions | null,
   ): ResponseStatus {
-    if (!movie) {
-      this.logger.error('Movie Not Found');
-      return {
-        code: StatusCode.NOT_FOUND,
-        error: { errors: ['Movie Not Found.'] },
-      };
-    }
-    if (!user) {
-      this.logger.error('User Not Found');
-      return {
-        code: StatusCode.NOT_FOUND,
-        error: { errors: ['User Not Found.'] },
-      };
-    }
-    if (movie.ageRestriction > user.age) {
-      this.logger.error('User Age Not Allowed');
-      return {
-        code: StatusCode.BAD_REQUEST,
-        error: { errors: ['User Age Not Allowed.'] },
-      };
-    }
-    if (user.tickets.length == 0) {
-      this.logger.error('User Don`t Have Any Valid Ticket');
-      return {
-        code: StatusCode.BAD_REQUEST,
-        error: { errors: ['User Don`t Have Any Valid Ticket.'] },
-      };
-    }
-    return { code: StatusCode.SUCCESS };
+    const conditions = [
+      { bool: !movie, err: 'Movie Not Found', status: StatusCode.NOT_FOUND },
+      { bool: !user, err: 'User Not Found', status: StatusCode.NOT_FOUND },
+      {
+        bool: movie?.ageRestriction > (user?.age || 0),
+        err: 'User Age Not Allowed',
+        status: StatusCode.BAD_REQUEST,
+      },
+      {
+        bool: user && user?.tickets && user?.tickets.length === 0,
+        err: 'User Don`t Have Any Valid Ticket',
+        status: StatusCode.BAD_REQUEST,
+      },
+    ];
+    return checkConditions(conditions);
   }
 
-  async watchMovie(
-    request: ByIdRequest,
-    userId?: string,
-  ): Promise<WatchMovieResponse> {
-    const movie = await this.prisma.movie.findUnique({
-      where: { id: request.id },
-    });
-    const user = await this.prisma.user.findUnique({
+  private async watchMovieUserDb(request: ByIdRequest, userId: string) {
+    return await this.prisma.user.findUnique({
       where: { id: userId },
       include: {
         tickets: {
@@ -177,12 +174,10 @@ export class CustomerService implements OnModuleInit, PCustomerService {
         },
       },
     });
-    const status = this.watchMovieStatus(movie, user);
-    if (status.code !== StatusCode.SUCCESS) {
-      return { status, data: null };
-    }
-    const usedTicketId = user.tickets[0].id;
-    const ticketDetails = await this.prisma.ticket.update({
+  }
+
+  private async watchMoviePrisma(usedTicketId: string) {
+    return await this.prisma.ticket.update({
       where: { id: usedTicketId },
       include: {
         session: true,
@@ -191,6 +186,23 @@ export class CustomerService implements OnModuleInit, PCustomerService {
         isUsed: true,
       },
     });
+  }
+
+  async watchMovie(
+    request: ByIdRequest,
+    userId?: string,
+  ): Promise<WatchMovieResponse> {
+    const movie = await this.prisma.movie.findUnique({
+      where: { id: request.id },
+    });
+    const user = await this.watchMovieUserDb(request, userId);
+
+    const status = this.watchMovieStatus(movie, user);
+    if (status.code !== StatusCode.SUCCESS) {
+      return { status, data: null };
+    }
+    const usedTicketId = user.tickets[0].id;
+    const ticketDetails = await this.watchMoviePrisma(usedTicketId);
     return {
       data: {
         movieName: movie.name,
@@ -202,11 +214,11 @@ export class CustomerService implements OnModuleInit, PCustomerService {
     };
   }
 
-  async viewWatchHistory(
+  private async viewWatchHistoryUserDb(
+    userId: string,
     request: PaginateRequest,
-    userId?: string,
-  ): Promise<ViewWatchHistoryResponse> {
-    const user = await this.prisma.user.findUnique({
+  ) {
+    return await this.prisma.user.findUnique({
       where: { id: userId },
       include: {
         tickets: {
@@ -221,12 +233,24 @@ export class CustomerService implements OnModuleInit, PCustomerService {
         },
       },
     });
-    const totalWatchedCount = await this.prisma.ticket.count({
+  }
+
+  private async viewWatchHistoryTotalCount(userId: string) {
+    return await this.prisma.ticket.count({
       where: {
         userId: userId,
         isUsed: true,
       },
     });
+  }
+
+  async viewWatchHistory(
+    request: PaginateRequest,
+    userId?: string,
+  ): Promise<ViewWatchHistoryResponse> {
+    const user = await this.viewWatchHistoryUserDb(userId, request);
+    const totalWatchedCount = await this.viewWatchHistoryTotalCount(userId);
+
     const usedTickets = user.tickets.filter((ticket) => ticket.isUsed);
     return {
       data: usedTickets.map((ticket) => {

@@ -192,3 +192,18 @@ export function responseStatusCreator(
 export function isRespnseFailed(response: EmptyResponse): boolean {
   return response.status.code !== StatusCode.SUCCESS;
 }
+
+export function checkConditions(
+  conditions: { bool: boolean; err: string; status: StatusCode }[],
+): ResponseStatus {
+  for (const condition of conditions) {
+    if (condition.bool) {
+      return responseStatusCreator(true, condition.err, condition.status);
+    }
+  }
+  return responseStatusCreator(
+    false,
+    'All conditions passed',
+    StatusCode.SUCCESS,
+  );
+}
