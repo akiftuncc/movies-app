@@ -1,12 +1,8 @@
-# Project Name
-
-<p align="center">
-  <img src="path-to-your-logo.png" width="200" alt="Project Logo" />
-</p>
+# Cinema API
 
 ## Description
 
-A brief description of your project - what it does, its main features, and its purpose.
+A REST API for a cinema.
 
 ## Prerequisites
 
@@ -14,7 +10,9 @@ Before you begin, ensure you have the following installed:
 
 - Node.js (v18 or higher)
 - Yarn package manager
-- PostgreSQL (v14 or higher)
+- MySQL (v8 or higher)
+- Protobuf compiler
+- Prisma CLI
 
 ## Installation & Setup
 
@@ -30,7 +28,7 @@ Create a `.env` file in the root directory and add the following variables:
 
 ```env
 # Database
-DATABASE_URL="postgresql://username:password@localhost:5432/database_name"
+DATABASE_URL="mysql://username:password@localhost:5432/database_name"
 
 # Application
 PORT=3000
@@ -87,9 +85,17 @@ yarn build           # Build the application
 yarn start:prod      # Start in production mode
 ```
 
-## API Documentation
+### Swagger Setup
 
-The API documentation is available at `/api/docs` when running the application in development mode.
+The API is documented using OpenAPI (Swagger) decorators in the controllers. Access the documentation:
+
+1. Start the application in development mode:
+
+```bash
+yarn start:dev
+```
+
+2. Visit `http://localhost:3000/api/docs` in your browser
 
 ### Main Endpoints
 
