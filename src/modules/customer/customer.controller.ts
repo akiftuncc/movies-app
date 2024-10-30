@@ -21,13 +21,14 @@ import {
   WatchMovieResponse,
 } from 'proto-generated/customer_messages';
 import { ByIdRequest, PaginateRequest } from 'proto-generated/general';
-import { AppRoleGuard, findUserIdByAuthHeader } from '@/utils/user-functions';
+import { findUserIdByAuthHeader } from '@/utils/user-functions';
 import { ByIdRequestDto } from '@/dto/general/request/by-id-request.dto';
 import { ZodValidationPipe } from 'nestjs-zod';
 import { PaginateRequestDto } from '@/dto/general/request/paginate-request.dto';
 import { BuyTicketResponseDto } from '@/dto/customer/response/buy-ticket-response.dto';
 import { WatchMovieResponseDto } from '@/dto/customer/response/watch-movie-response';
 import { ViewWatchHistoryResponseDto } from '@/dto/customer/response/view-watch-history-response.dto';
+import { AppRoleGuard } from '../../guards/role.guard';
 
 @ApiTags('Customer')
 @Controller('customer')

@@ -27,7 +27,7 @@ import {
   EmptyResponse,
   PaginateRequest,
 } from 'proto-generated/general';
-import { AppRoleGuard, findUserIdByAuthHeader } from '@/utils/user-functions';
+import { findUserIdByAuthHeader } from '@/utils/user-functions';
 import { ByIdRequestDto } from '@/dto/general/request/by-id-request.dto';
 import { ZodValidationPipe } from 'nestjs-zod';
 import { PaginateRequestDto } from '@/dto/general/request/paginate-request.dto';
@@ -43,6 +43,7 @@ import {
 import { UpdateMovieRequestDto } from '@/dto/manager/request/update-movie-request.dto';
 
 import { StatusCode } from '@/utils/constants';
+import { AppRoleGuard } from '../../guards/role.guard';
 
 @ApiTags('Manager')
 @Controller('manager')

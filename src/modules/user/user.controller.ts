@@ -41,11 +41,8 @@ import { RegisterRequestDto } from '@/dto/user/request/register-request.dto';
 import { RegisterResponseDto } from '@/dto/user/response/register-response.dto';
 import { EmptyResponseDto } from '@/dto/general/response/empty-response.dto';
 import { JwtService } from '@nestjs/jwt';
-import {
-  AppAuthGuard,
-  AppRoleGuard,
-  findUserIdByAuthHeader,
-} from '@/utils/user-functions';
+import { findUserIdByAuthHeader } from '@/utils/user-functions';
+import { AppAuthGuard } from '../../guards/auth.guard';
 
 @ApiTags('user')
 @Controller('user')
