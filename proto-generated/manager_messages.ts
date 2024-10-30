@@ -6,45 +6,60 @@
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
-import { SessionDto } from "./general";
+import { TimeSlot, timeSlotFromJSON, timeSlotToJSON } from "./general";
 
 export const protobufPackage = "manager";
 
-export interface AddMoviesRequest {
+export interface AddMovieRequest {
   name: string;
   ageRestriction: number;
-  sessions: SessionDto[];
+  writer: string;
+  sessions: UpsertSessionDto[];
+}
+
+export interface UpsertSessionDto {
+  roomNumber: string;
+  dates: SessionDatesDto[];
+}
+
+export interface SessionDatesDto {
+  date: string;
+  timeSlots: TimeSlot[];
 }
 
 export interface UpdateMovieRequest {
   id: string;
   name?: string | undefined;
   ageRestriction?: number | undefined;
-  sessions: SessionDto[];
+  writer?: string | undefined;
+  sessions: UpsertSessionDto[];
 }
 
-function createBaseAddMoviesRequest(): AddMoviesRequest {
-  return { name: "", ageRestriction: 0, sessions: [] };
+function createBaseAddMovieRequest(): AddMovieRequest {
+  return { name: "", ageRestriction: 0, writer: "", sessions: [] };
 }
 
-export const AddMoviesRequest: MessageFns<AddMoviesRequest> = {
-  encode(message: AddMoviesRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+export const AddMovieRequest: MessageFns<AddMovieRequest> = {
+  encode(message: AddMovieRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     if (message.name !== "") {
       writer.uint32(10).string(message.name);
     }
     if (message.ageRestriction !== 0) {
       writer.uint32(16).int32(message.ageRestriction);
     }
+    if (message.writer !== "") {
+      writer.uint32(26).string(message.writer);
+    }
     for (const v of message.sessions) {
-      SessionDto.encode(v!, writer.uint32(26).fork()).join();
+      UpsertSessionDto.encode(v!, writer.uint32(34).fork()).join();
     }
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): AddMoviesRequest {
+  decode(input: BinaryReader | Uint8Array, length?: number): AddMovieRequest {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseAddMoviesRequest();
+    const message = createBaseAddMovieRequest();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -69,7 +84,15 @@ export const AddMoviesRequest: MessageFns<AddMoviesRequest> = {
             break;
           }
 
-          message.sessions.push(SessionDto.decode(reader, reader.uint32()));
+          message.writer = reader.string();
+          continue;
+        }
+        case 4: {
+          if (tag !== 34) {
+            break;
+          }
+
+          message.sessions.push(UpsertSessionDto.decode(reader, reader.uint32()));
           continue;
         }
       }
@@ -81,17 +104,18 @@ export const AddMoviesRequest: MessageFns<AddMoviesRequest> = {
     return message;
   },
 
-  fromJSON(object: any): AddMoviesRequest {
+  fromJSON(object: any): AddMovieRequest {
     return {
       name: isSet(object.name) ? globalThis.String(object.name) : "",
       ageRestriction: isSet(object.ageRestriction) ? globalThis.Number(object.ageRestriction) : 0,
+      writer: isSet(object.writer) ? globalThis.String(object.writer) : "",
       sessions: globalThis.Array.isArray(object?.sessions)
-        ? object.sessions.map((e: any) => SessionDto.fromJSON(e))
+        ? object.sessions.map((e: any) => UpsertSessionDto.fromJSON(e))
         : [],
     };
   },
 
-  toJSON(message: AddMoviesRequest): unknown {
+  toJSON(message: AddMovieRequest): unknown {
     const obj: any = {};
     if (message.name !== "") {
       obj.name = message.name;
@@ -99,26 +123,196 @@ export const AddMoviesRequest: MessageFns<AddMoviesRequest> = {
     if (message.ageRestriction !== 0) {
       obj.ageRestriction = Math.round(message.ageRestriction);
     }
+    if (message.writer !== "") {
+      obj.writer = message.writer;
+    }
     if (message.sessions?.length) {
-      obj.sessions = message.sessions.map((e) => SessionDto.toJSON(e));
+      obj.sessions = message.sessions.map((e) => UpsertSessionDto.toJSON(e));
     }
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<AddMoviesRequest>, I>>(base?: I): AddMoviesRequest {
-    return AddMoviesRequest.fromPartial(base ?? ({} as any));
+  create<I extends Exact<DeepPartial<AddMovieRequest>, I>>(base?: I): AddMovieRequest {
+    return AddMovieRequest.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<AddMoviesRequest>, I>>(object: I): AddMoviesRequest {
-    const message = createBaseAddMoviesRequest();
+  fromPartial<I extends Exact<DeepPartial<AddMovieRequest>, I>>(object: I): AddMovieRequest {
+    const message = createBaseAddMovieRequest();
     message.name = object.name ?? "";
     message.ageRestriction = object.ageRestriction ?? 0;
-    message.sessions = object.sessions?.map((e) => SessionDto.fromPartial(e)) || [];
+    message.writer = object.writer ?? "";
+    message.sessions = object.sessions?.map((e) => UpsertSessionDto.fromPartial(e)) || [];
+    return message;
+  },
+};
+
+function createBaseUpsertSessionDto(): UpsertSessionDto {
+  return { roomNumber: "", dates: [] };
+}
+
+export const UpsertSessionDto: MessageFns<UpsertSessionDto> = {
+  encode(message: UpsertSessionDto, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.roomNumber !== "") {
+      writer.uint32(10).string(message.roomNumber);
+    }
+    for (const v of message.dates) {
+      SessionDatesDto.encode(v!, writer.uint32(18).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): UpsertSessionDto {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseUpsertSessionDto();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.roomNumber = reader.string();
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.dates.push(SessionDatesDto.decode(reader, reader.uint32()));
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): UpsertSessionDto {
+    return {
+      roomNumber: isSet(object.roomNumber) ? globalThis.String(object.roomNumber) : "",
+      dates: globalThis.Array.isArray(object?.dates) ? object.dates.map((e: any) => SessionDatesDto.fromJSON(e)) : [],
+    };
+  },
+
+  toJSON(message: UpsertSessionDto): unknown {
+    const obj: any = {};
+    if (message.roomNumber !== "") {
+      obj.roomNumber = message.roomNumber;
+    }
+    if (message.dates?.length) {
+      obj.dates = message.dates.map((e) => SessionDatesDto.toJSON(e));
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<UpsertSessionDto>, I>>(base?: I): UpsertSessionDto {
+    return UpsertSessionDto.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<UpsertSessionDto>, I>>(object: I): UpsertSessionDto {
+    const message = createBaseUpsertSessionDto();
+    message.roomNumber = object.roomNumber ?? "";
+    message.dates = object.dates?.map((e) => SessionDatesDto.fromPartial(e)) || [];
+    return message;
+  },
+};
+
+function createBaseSessionDatesDto(): SessionDatesDto {
+  return { date: "", timeSlots: [] };
+}
+
+export const SessionDatesDto: MessageFns<SessionDatesDto> = {
+  encode(message: SessionDatesDto, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.date !== "") {
+      writer.uint32(18).string(message.date);
+    }
+    writer.uint32(26).fork();
+    for (const v of message.timeSlots) {
+      writer.int32(v);
+    }
+    writer.join();
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): SessionDatesDto {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseSessionDatesDto();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.date = reader.string();
+          continue;
+        }
+        case 3: {
+          if (tag === 24) {
+            message.timeSlots.push(reader.int32() as any);
+
+            continue;
+          }
+
+          if (tag === 26) {
+            const end2 = reader.uint32() + reader.pos;
+            while (reader.pos < end2) {
+              message.timeSlots.push(reader.int32() as any);
+            }
+
+            continue;
+          }
+
+          break;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): SessionDatesDto {
+    return {
+      date: isSet(object.date) ? globalThis.String(object.date) : "",
+      timeSlots: globalThis.Array.isArray(object?.timeSlots)
+        ? object.timeSlots.map((e: any) => timeSlotFromJSON(e))
+        : [],
+    };
+  },
+
+  toJSON(message: SessionDatesDto): unknown {
+    const obj: any = {};
+    if (message.date !== "") {
+      obj.date = message.date;
+    }
+    if (message.timeSlots?.length) {
+      obj.timeSlots = message.timeSlots.map((e) => timeSlotToJSON(e));
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<SessionDatesDto>, I>>(base?: I): SessionDatesDto {
+    return SessionDatesDto.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<SessionDatesDto>, I>>(object: I): SessionDatesDto {
+    const message = createBaseSessionDatesDto();
+    message.date = object.date ?? "";
+    message.timeSlots = object.timeSlots?.map((e) => e) || [];
     return message;
   },
 };
 
 function createBaseUpdateMovieRequest(): UpdateMovieRequest {
-  return { id: "", name: undefined, ageRestriction: undefined, sessions: [] };
+  return { id: "", name: undefined, ageRestriction: undefined, writer: undefined, sessions: [] };
 }
 
 export const UpdateMovieRequest: MessageFns<UpdateMovieRequest> = {
@@ -132,8 +326,11 @@ export const UpdateMovieRequest: MessageFns<UpdateMovieRequest> = {
     if (message.ageRestriction !== undefined) {
       writer.uint32(24).int32(message.ageRestriction);
     }
+    if (message.writer !== undefined) {
+      writer.uint32(34).string(message.writer);
+    }
     for (const v of message.sessions) {
-      SessionDto.encode(v!, writer.uint32(34).fork()).join();
+      UpsertSessionDto.encode(v!, writer.uint32(42).fork()).join();
     }
     return writer;
   },
@@ -174,7 +371,15 @@ export const UpdateMovieRequest: MessageFns<UpdateMovieRequest> = {
             break;
           }
 
-          message.sessions.push(SessionDto.decode(reader, reader.uint32()));
+          message.writer = reader.string();
+          continue;
+        }
+        case 5: {
+          if (tag !== 42) {
+            break;
+          }
+
+          message.sessions.push(UpsertSessionDto.decode(reader, reader.uint32()));
           continue;
         }
       }
@@ -191,8 +396,9 @@ export const UpdateMovieRequest: MessageFns<UpdateMovieRequest> = {
       id: isSet(object.id) ? globalThis.String(object.id) : "",
       name: isSet(object.name) ? globalThis.String(object.name) : undefined,
       ageRestriction: isSet(object.ageRestriction) ? globalThis.Number(object.ageRestriction) : undefined,
+      writer: isSet(object.writer) ? globalThis.String(object.writer) : undefined,
       sessions: globalThis.Array.isArray(object?.sessions)
-        ? object.sessions.map((e: any) => SessionDto.fromJSON(e))
+        ? object.sessions.map((e: any) => UpsertSessionDto.fromJSON(e))
         : [],
     };
   },
@@ -208,8 +414,11 @@ export const UpdateMovieRequest: MessageFns<UpdateMovieRequest> = {
     if (message.ageRestriction !== undefined) {
       obj.ageRestriction = Math.round(message.ageRestriction);
     }
+    if (message.writer !== undefined) {
+      obj.writer = message.writer;
+    }
     if (message.sessions?.length) {
-      obj.sessions = message.sessions.map((e) => SessionDto.toJSON(e));
+      obj.sessions = message.sessions.map((e) => UpsertSessionDto.toJSON(e));
     }
     return obj;
   },
@@ -222,7 +431,8 @@ export const UpdateMovieRequest: MessageFns<UpdateMovieRequest> = {
     message.id = object.id ?? "";
     message.name = object.name ?? undefined;
     message.ageRestriction = object.ageRestriction ?? undefined;
-    message.sessions = object.sessions?.map((e) => SessionDto.fromPartial(e)) || [];
+    message.writer = object.writer ?? undefined;
+    message.sessions = object.sessions?.map((e) => UpsertSessionDto.fromPartial(e)) || [];
     return message;
   },
 };

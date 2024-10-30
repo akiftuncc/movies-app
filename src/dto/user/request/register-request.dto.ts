@@ -10,7 +10,7 @@ const registerRequestDefinition: Record<keyof RegisterRequest, z.ZodTypeAny> = {
   password: z.string().min(3),
   passwordConfirmation: z.string().min(3),
   age: z.number(),
-  type: z.string(),
+  type: z.enum(Object.values(UserType) as [string, ...string[]]),
 };
 
 const RegisterRequestSchema = interfaceToZod<RegisterRequest>(

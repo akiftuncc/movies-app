@@ -7,7 +7,7 @@
 /* eslint-disable */
 import { BuyTicketResponse, ViewWatchHistoryResponse, WatchMovieResponse } from "./customer_messages";
 import { ByIdRequest, EmptyResponse, PaginateRequest } from "./general";
-import { AddMoviesRequest, UpdateMovieRequest } from "./manager_messages";
+import { AddMovieRequest, UpdateMovieRequest } from "./manager_messages";
 import { ListMoviesResponse, LoginRequest, LoginResponse, RegisterRequest, RegisterResponse } from "./user_messages";
 
 export const protobufPackage = "micro.v1.portfolio";
@@ -26,7 +26,7 @@ export interface PUserService {
 }
 
 export interface PManagerService {
-  createMovies(request: AddMoviesRequest): Promise<EmptyResponse>;
-  updateMovies(request: UpdateMovieRequest): Promise<EmptyResponse>;
-  deleteMovies(request: ByIdRequest): Promise<EmptyResponse>;
+  createMovie(request: AddMovieRequest): Promise<EmptyResponse>;
+  updateMovie(request: UpdateMovieRequest): Promise<EmptyResponse>;
+  deleteMovie(request: ByIdRequest): Promise<EmptyResponse>;
 }

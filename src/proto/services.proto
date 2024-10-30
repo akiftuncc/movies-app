@@ -21,7 +21,7 @@ service PUserService {
 }
 
 service PManagerService {
-    rpc createMovies(manager.AddMoviesRequest) returns( general.EmptyResponse) {}
-    rpc updateMovies(manager.UpdateMovieRequest) returns( general.EmptyResponse) {}
-    rpc deleteMovies(general.ByIdRequest) returns( general.EmptyResponse) {}
+    rpc createMovie(manager.AddMovieRequest) returns( general.EmptyResponse) {}
+    rpc updateMovie(manager.UpdateMovieRequest) returns( general.EmptyResponse) {}
+    rpc deleteMovie(general.ByIdRequest) returns( general.EmptyResponse) {}
   }

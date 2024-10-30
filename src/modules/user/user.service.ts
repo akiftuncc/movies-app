@@ -2,7 +2,7 @@ import { MovieWithSessionsAndTickets } from '@/types/prisma-included-types';
 import { listMoviesNormalizer } from '@/utils/normalizers/user.normalizers';
 
 import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common';
-import { Movie, PrismaClient, User } from '@prisma/client';
+import { Movie, PrismaClient, User, UserType } from '@prisma/client';
 import {
   prismaWhereCreatorWithTable,
   prismaPaginateCreator,
@@ -97,6 +97,7 @@ export class UserService implements OnModuleInit, PUserService {
         username: request.username,
         password: password(request.password),
         age: request.age,
+        type: request.type as unknown as UserType,
       },
     });
     const payload = payloadCreator(user);

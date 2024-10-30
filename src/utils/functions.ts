@@ -1,5 +1,10 @@
 import * as bcrypt from 'bcrypt';
-import { TICKET_NUMBERS, userConstants, X_INTERNAL_HASH } from './constants';
+import {
+  StatusCode,
+  TICKET_NUMBERS,
+  userConstants,
+  X_INTERNAL_HASH,
+} from './constants';
 import { Movie, PrismaClient, TimeSlot, UserType } from '@prisma/client';
 import { Logger } from '@nestjs/common';
 import { format } from 'date-fns';
@@ -7,8 +12,9 @@ import crypto from 'crypto';
 import * as jwt from 'jsonwebtoken';
 import { JwtUser } from 'proto-generated/user_messages';
 import { CONFIG_ENV } from '@/config/config';
+import { EmptyResponse, ResponseStatus } from 'proto-generated/general';
 const prisma = new PrismaClient();
-const logger = new Logger('Seeding - Tickets');
+const logger = new Logger('functions');
 
 export const password = (pwd: string) => {
   return bcrypt.hashSync(pwd, userConstants.SALT_OR_ROUNDS);
@@ -17,12 +23,50 @@ export const password = (pwd: string) => {
 export const sleep = async (time: number) =>
   new Promise((resolve) => setTimeout(resolve, time));
 
-export const generateUniqueMovieName = (movieName: string, writer: string) => {
-  return `${movieName}-${writer}`
+const idCreator = (name: string) => {
+  return name
     .replace(/[.,:;!?'"`~@#$%^&*()_+=<>[\]{}|\\/]/g, '-')
     .replace(/\s+/g, '-')
     .replace(/-+/g, '-')
     .toLowerCase();
+};
+
+export const generateUniqueMovieName = (movieName: string, writer: string) => {
+  return idCreator(`${movieName}-${writer}`);
+};
+
+export const findMovieWriterId = (
+  movieName: string,
+  movieUniqueName: string,
+) => {
+  return movieUniqueName.replace(idCreator(movieName) + '-', '').toLowerCase();
+};
+
+export const findMovieName = (movieUniqueName: string, writerName: string) => {
+  return movieUniqueName.replace('-' + idCreator(writerName), '').toLowerCase();
+};
+
+export const updateMovieUniqueName = (
+  movieUniqueName: string,
+  movieNameDb: string,
+  movieName?: string,
+  writerName?: string,
+) => {
+  if (movieName && writerName) {
+    return generateUniqueMovieName(movieName, writerName);
+  }
+  if (!movieName && !writerName) {
+    return movieUniqueName;
+  }
+  if (movieName && !writerName) {
+    const writerName = movieUniqueName
+      .replace(idCreator(movieNameDb) + '-', '')
+      .toLowerCase();
+    return generateUniqueMovieName(movieName, writerName);
+  }
+  if (!movieName && writerName) {
+    return generateUniqueMovieName(movieNameDb, writerName);
+  }
 };
 
 export const isMovieExist = async (uniqueName: string): Promise<Movie> => {
@@ -76,10 +120,10 @@ export const formatDate = (date: Date, timeSlot: TimeSlot) => {
 };
 
 export const generateTickets = async (sessionId: string) => {
-  await sleep(500);
   TICKET_NUMBERS.forEach(async (ticketNumber) => {
     try {
-      await prisma.ticket.create({
+      console.log('TICKET NUMBER', ticketNumber);
+      const ticket = await prisma.ticket.create({
         data: {
           session: {
             connect: { id: sessionId },
@@ -87,6 +131,7 @@ export const generateTickets = async (sessionId: string) => {
           ticketNumber,
         },
       });
+      console.log('TICKET', ticket);
       logger.log(`Ticket ${ticketNumber} created for session ${sessionId}`);
     } catch (error) {
       logger.error(
@@ -107,3 +152,43 @@ export const getEnv = (key: string, defaultVal?: any): string => {
   }
   return result;
 };
+
+export function emptyResponseStatusCreator(
+  value: boolean,
+  error: string,
+  code: StatusCode,
+): EmptyResponse {
+  const logger = new Logger('response status');
+  if (value) {
+    logger.error(error);
+  }
+  return value
+    ? {
+        status: {
+          error: { errors: [error] },
+          code: code,
+        },
+      }
+    : { status: { code: StatusCode.SUCCESS } };
+}
+
+export function responseStatusCreator(
+  value: boolean,
+  error: string,
+  code: StatusCode,
+): ResponseStatus {
+  const logger = new Logger('response status');
+  if (value) {
+    logger.error(error);
+  }
+  return value
+    ? {
+        error: { errors: [error] },
+        code: code,
+      }
+    : { code: StatusCode.SUCCESS };
+}
+
+export function isRespnseFailed(response: EmptyResponse): boolean {
+  return response.status.code !== StatusCode.SUCCESS;
+}
