@@ -122,7 +122,6 @@ export const formatDate = (date: Date, timeSlot: TimeSlot) => {
 export const generateTickets = async (sessionId: string) => {
   TICKET_NUMBERS.forEach(async (ticketNumber) => {
     try {
-      console.log('TICKET NUMBER', ticketNumber);
       const ticket = await prisma.ticket.create({
         data: {
           session: {
@@ -131,7 +130,7 @@ export const generateTickets = async (sessionId: string) => {
           ticketNumber,
         },
       });
-      console.log('TICKET', ticket);
+
       logger.log(`Ticket ${ticketNumber} created for session ${sessionId}`);
     } catch (error) {
       logger.error(

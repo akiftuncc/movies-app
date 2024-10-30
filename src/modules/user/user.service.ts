@@ -111,12 +111,12 @@ export class UserService implements OnModuleInit, PUserService {
 
   private async loginStatus(
     request: LoginRequest,
-    user: User,
+    user: User | null,
   ): Promise<ResponseStatus> {
     const conditions = [
       { bool: !user, err: 'User not found.', status: StatusCode.NOT_FOUND },
       {
-        bool: !isPasswordEqual(request.password, user.password),
+        bool: user && !isPasswordEqual(request?.password, user?.password),
         err: 'Wrong password.',
         status: StatusCode.BAD_REQUEST,
       },
@@ -128,6 +128,7 @@ export class UserService implements OnModuleInit, PUserService {
     const user = await this.prisma.user.findUnique({
       where: { username: request.username, deletedAt: null },
     });
+
     const status = await this.loginStatus(request, user);
     if (status.code !== StatusCode.SUCCESS) {
       return { status: status, accessToken: '' };
@@ -152,7 +153,7 @@ export class UserService implements OnModuleInit, PUserService {
       select: { username: true },
     });
 
-    const status = await this.deleteStatus(username.username);
+    const status = await this.deleteStatus(username?.username);
     if (status.code !== StatusCode.SUCCESS) {
       return { status };
     }

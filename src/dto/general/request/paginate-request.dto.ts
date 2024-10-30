@@ -21,6 +21,6 @@ export class PaginateRequestDto extends createZodDto(PaginateRequestSchema) {
   @ApiProperty({ example: 10 })
   perPage: number;
 
-  @ApiProperty({ example: 'My Portfolio' })
-  fulltextSearch: string;
+  @ApiProperty({ example: 'Optional search query' })
+  fulltextSearch?: string;
 }

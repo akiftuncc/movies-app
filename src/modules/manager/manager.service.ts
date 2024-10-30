@@ -70,7 +70,6 @@ export class ManagerService implements OnModuleInit, PManagerService {
   }
 
   async createMovie(request: AddMovieRequest): Promise<EmptyResponse> {
-    console.log('AKOOO');
     const movieExists = await this.isMovieExists(request);
     if (isRespnseFailed(movieExists)) {
       return movieExists;
