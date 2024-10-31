@@ -157,6 +157,7 @@ export class ManagerService implements OnModuleInit, PManagerService {
   async updateMovie(request: UpdateMovieRequest): Promise<EmptyResponse> {
     const movieDb = await this.prisma.movie.findUnique({
       where: {
+        deletedAt: null,
         id: request.id,
       },
       include: {
@@ -223,6 +224,7 @@ export class ManagerService implements OnModuleInit, PManagerService {
   async deleteMovie(request: ByIdRequest): Promise<EmptyResponse> {
     const movieDb = await this.prisma.movie.findUnique({
       where: {
+        deletedAt: null,
         id: request.id,
       },
       include: {

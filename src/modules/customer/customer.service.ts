@@ -73,7 +73,7 @@ export class CustomerService implements OnModuleInit, PCustomerService {
 
   private async buyTicketUserAge(userId: string) {
     return await this.prisma.user.findUnique({
-      where: { id: userId },
+      where: { id: userId, deletedAt: null },
       select: { age: true },
     });
   }
@@ -103,7 +103,7 @@ export class CustomerService implements OnModuleInit, PCustomerService {
           },
         },
       },
-      where: { ...where, userId: null },
+      where: { ...where, userId: null, deletedAt: null },
       data: {
         userId: userId,
       },
@@ -151,7 +151,7 @@ export class CustomerService implements OnModuleInit, PCustomerService {
 
   private async watchMovieUserDb(request: ByIdRequest, userId: string) {
     return await this.prisma.user.findUnique({
-      where: { id: userId },
+      where: { id: userId, deletedAt: null },
       include: {
         tickets: {
           where: {
@@ -178,7 +178,7 @@ export class CustomerService implements OnModuleInit, PCustomerService {
 
   private async watchMoviePrisma(usedTicketId: string) {
     return await this.prisma.ticket.update({
-      where: { id: usedTicketId },
+      where: { id: usedTicketId, deletedAt: null },
       include: {
         session: true,
       },
@@ -193,7 +193,7 @@ export class CustomerService implements OnModuleInit, PCustomerService {
     userId?: string,
   ): Promise<WatchMovieResponse> {
     const movie = await this.prisma.movie.findUnique({
-      where: { id: request.id },
+      where: { id: request.id, deletedAt: null },
     });
     const user = await this.watchMovieUserDb(request, userId);
 
@@ -219,10 +219,11 @@ export class CustomerService implements OnModuleInit, PCustomerService {
     request: PaginateRequest,
   ) {
     return await this.prisma.user.findUnique({
-      where: { id: userId },
+      where: { id: userId, deletedAt: null },
       include: {
         tickets: {
           ...prismaPaginateCreator(request.page, request.perPage),
+          where: { deletedAt: null },
           include: {
             session: {
               include: {

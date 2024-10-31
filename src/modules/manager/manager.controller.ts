@@ -12,6 +12,7 @@ import {
 import { ManagerService } from './manager.service';
 import {
   ApiBearerAuth,
+  ApiBody,
   ApiOperation,
   ApiResponse,
   ApiTags,
@@ -59,12 +60,13 @@ export class ManagerController {
     description: 'Create Movie',
     type: EmptyResponseDto,
   })
+  @ApiBody({
+    type: AddMovieRequestDto,
+    description: 'Create Movie',
+  })
   @Post('create-movie')
   @UsePipes(new ZodValidationPipe(AddMovieRequestDto))
-  async createMovie(
-    @Headers('Authorization') authHeader: string,
-    @Body() body: AddMovieRequest,
-  ): Promise<EmptyResponse> {
+  async createMovie(@Body() body: AddMovieRequest): Promise<EmptyResponse> {
     return await this.managerService.createMovie(body);
   }
 
@@ -74,12 +76,13 @@ export class ManagerController {
     description: 'Update Movie',
     type: EmptyResponseDto,
   })
+  @ApiBody({
+    type: UpdateMovieRequestDto,
+    description: 'Update Movie',
+  })
   @Patch('update-movie')
   @UsePipes(new ZodValidationPipe(UpdateMovieRequestDto))
-  async updateMovie(
-    @Headers('Authorization') authHeader: string,
-    @Body() body: UpdateMovieRequest,
-  ): Promise<EmptyResponse> {
+  async updateMovie(@Body() body: UpdateMovieRequest): Promise<EmptyResponse> {
     return await this.managerService.updateMovie(body);
   }
 
@@ -89,12 +92,13 @@ export class ManagerController {
     description: 'Delete Movie',
     type: EmptyResponseDto,
   })
+  @ApiBody({
+    type: ByIdRequestDto,
+    description: 'Movie ID to delete',
+  })
   @Delete('delete-movie')
   @UsePipes(new ZodValidationPipe(ByIdRequestDto))
-  async deleteMovie(
-    @Headers('Authorization') authHeader: string,
-    @Body() body: ByIdRequest,
-  ): Promise<EmptyResponse> {
+  async deleteMovie(@Body() body: ByIdRequest): Promise<EmptyResponse> {
     return await this.managerService.deleteMovie(body);
   }
 }

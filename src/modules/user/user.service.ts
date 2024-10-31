@@ -7,6 +7,7 @@ import {
   prismaWhereCreatorWithTable,
   prismaPaginateCreator,
   prismaDeletedAt,
+  prismaWhereCreatorWithTableDeletedAt,
 } from '@/utils/prisma-functions';
 import * as jwt from 'jsonwebtoken';
 import {
@@ -43,7 +44,12 @@ export class UserService implements OnModuleInit, PUserService {
   private async listMoviesDb(request: PaginateRequest) {
     return await this.prisma.movie.findMany({
       ...prismaPaginateCreator(request.page, request.perPage),
-      ...prismaWhereCreatorWithTable('sessions', 'date', 'gte', new Date()),
+      ...prismaWhereCreatorWithTableDeletedAt(
+        'sessions',
+        'date',
+        'gte',
+        new Date(),
+      ),
       include: {
         sessions: {
           include: {
