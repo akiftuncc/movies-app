@@ -3,7 +3,7 @@ import {
   TicketWithSessionAndMovie,
   UserWithTicketsAndSessions,
 } from '@/types/prisma-included-types';
-import { StatusCode } from '@/utils/constants';
+import { StatusCode } from '@/config/constants';
 import {
   checkConditions,
   formatDateToReadableString,
@@ -15,7 +15,6 @@ import {
   prismaPaginateCreator,
   prismaWhereCreatorWithTable,
 } from '@/utils/prisma-functions';
-import { findUserIdByAuthHeader } from '@/utils/user-functions';
 import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { Movie, Prisma, PrismaClient, Ticket, User } from '@prisma/client';
 import {

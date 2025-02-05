@@ -10,6 +10,8 @@ import {
 import { CustomerService } from './customer.service';
 import {
   ApiBearerAuth,
+  ApiExcludeEndpoint,
+  ApiHeader,
   ApiOperation,
   ApiResponse,
   ApiTags,
@@ -29,6 +31,7 @@ import { BuyTicketResponseDto } from '@/dto/customer/response/buy-ticket-respons
 import { WatchMovieResponseDto } from '@/dto/customer/response/watch-movie-response';
 import { ViewWatchHistoryResponseDto } from '@/dto/customer/response/view-watch-history-response.dto';
 import { AppRoleGuard } from '../../guards/role.guard';
+import { JwtService } from '@nestjs/jwt';
 
 @ApiTags('Customer')
 @Controller('customer')
@@ -36,7 +39,10 @@ import { AppRoleGuard } from '../../guards/role.guard';
 @UseGuards(AppRoleGuard('customer'))
 export class CustomerController {
   private readonly logger = new Logger(CustomerController.name);
-  constructor(private readonly customerService: CustomerService) {}
+  constructor(
+    private readonly customerService: CustomerService,
+    private readonly jwtService: JwtService,
+  ) {}
 
   @ApiOperation({ summary: 'Buy Ticket' })
   @ApiResponse({
@@ -44,13 +50,18 @@ export class CustomerController {
     description: 'Buy Ticket',
     type: BuyTicketResponseDto,
   })
+  @ApiHeader({
+    name: 'Authorization',
+    description: 'Bearer token',
+    required: false,
+  })
   @Post('buy-ticket')
   @UsePipes(new ZodValidationPipe(ByIdRequestDto))
   async buyTicket(
-    @Headers('Authorization') authHeader: string,
+    @Headers('Authorization') headers: string,
     @Body() body: ByIdRequestDto,
   ): Promise<BuyTicketResponse> {
-    const userId = findUserIdByAuthHeader(authHeader);
+    const userId = findUserIdByAuthHeader(headers, this.jwtService);
     return await this.customerService.buyTicket(body, userId);
   }
 
@@ -60,13 +71,18 @@ export class CustomerController {
     description: 'Watch Movie',
     type: WatchMovieResponseDto,
   })
+  @ApiHeader({
+    name: 'Authorization',
+    description: 'Bearer token',
+    required: false,
+  })
   @Post('watch-movie')
   @UsePipes(new ZodValidationPipe(ByIdRequestDto))
   async watchMovie(
-    @Headers('Authorization') authHeader: string,
+    @Headers('Authorization') headers: string,
     @Body() body: ByIdRequestDto,
   ): Promise<WatchMovieResponse> {
-    const userId = findUserIdByAuthHeader(authHeader);
+    const userId = findUserIdByAuthHeader(headers, this.jwtService);
     return await this.customerService.watchMovie(body, userId);
   }
 
@@ -76,13 +92,18 @@ export class CustomerController {
     description: 'View Watch History',
     type: ViewWatchHistoryResponseDto,
   })
+  @ApiHeader({
+    name: 'Authorization',
+    description: 'Bearer token',
+    required: false,
+  })
   @Post('view-watch-history')
   @UsePipes(new ZodValidationPipe(PaginateRequestDto))
   async viewWatchHistory(
-    @Headers('Authorization') authHeader: string,
     @Body() body: PaginateRequestDto,
+    @Headers('Authorization') headers: string,
   ): Promise<ViewWatchHistoryResponse> {
-    const userId = findUserIdByAuthHeader(authHeader);
+    const userId = findUserIdByAuthHeader(headers, this.jwtService);
     return await this.customerService.viewWatchHistory(body, userId);
   }
 }

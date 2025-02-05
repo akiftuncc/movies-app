@@ -3,12 +3,8 @@ import { User, UserType } from '@prisma/client';
 import { JwtUser } from 'proto-generated/user_messages';
 import * as jwt from 'jsonwebtoken';
 import crypto from 'crypto';
-import { X_INTERNAL_HASH } from './constants';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
-import { CanActivate, ExecutionContext, Logger, mixin } from '@nestjs/common';
-import { IncomingMessage } from 'http';
-import { getEnv } from './functions';
 
 const jwtService = new JwtService();
 
@@ -32,7 +28,7 @@ export function metadataCreator(token: string) {
 export function jwtCreator(payload: JwtUser) {
   return jwt
     .sign(payload, CONFIG_ENV.jwtSecret + '', {
-      expiresIn: 60 * 60 * CONFIG_ENV.jwtExpiresIn,
+      expiresIn: 60 * 60 * CONFIG_ENV.jwtExpiration,
     })
     .toString();
 }
@@ -43,7 +39,7 @@ export const getMetadata = (clientJwt: string, jwtSecret: string) => {
     : clientJwt;
   const headers = {
     authorization: `Bearer ${token}`,
-    [X_INTERNAL_HASH]: crypto
+    [CONFIG_ENV.x_internal_hash]: crypto
       .createHash('md5')
       .update(jwtSecret)
       .digest('hex')
@@ -66,7 +62,10 @@ export const payloadCreator = (user: User): JwtUser => {
   return payload;
 };
 
-export const findUserIdByAuthHeader = (authHeader: string) => {
+export const findUserIdByAuthHeader = (
+  authHeader: string,
+  jwtService: JwtService,
+) => {
   const token = authHeader.split(' ')[1];
   const decoded = jwtService.verify(token, { secret: CONFIG_ENV.jwtSecret });
   const userId = decoded.sub;
@@ -79,6 +78,6 @@ export const getBearerUser = (header: string): JwtUser | null => {
     return null;
   }
   const token = header.slice(header.indexOf(' ') + 1);
-  const user = jwt.verify(token, getEnv('JWT_SECRET')) as JwtUser;
+  const user = jwt.verify(token, CONFIG_ENV.jwtSecret) as JwtUser;
   return user;
 };

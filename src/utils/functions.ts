@@ -1,19 +1,9 @@
 import * as bcrypt from 'bcrypt';
-import {
-  StatusCode,
-  TICKET_NUMBERS,
-  userConstants,
-  X_INTERNAL_HASH,
-} from './constants';
-import { Movie, PrismaClient, TimeSlot, UserType } from '@prisma/client';
+import { StatusCode, userConstants } from '../config/constants';
+import { TimeSlot } from '@prisma/client';
 import { Logger } from '@nestjs/common';
 import { format } from 'date-fns';
-import crypto from 'crypto';
-import * as jwt from 'jsonwebtoken';
-import { JwtUser } from 'proto-generated/user_messages';
-import { CONFIG_ENV } from '@/config/config';
 import { EmptyResponse, ResponseStatus } from 'proto-generated/general';
-const prisma = new PrismaClient();
 const logger = new Logger('functions');
 
 export const password = (pwd: string) => {
@@ -69,23 +59,7 @@ export const updateMovieUniqueName = (
   }
 };
 
-export const isMovieExist = async (uniqueName: string): Promise<Movie> => {
-  try {
-    const movie = await prisma.movie.findUnique({
-      where: { uniqueName },
-    });
-    if (!movie) {
-      logger.error(`Movie with uniqueName ${uniqueName} not found`);
-      return null;
-    }
-    return movie;
-  } catch {
-    logger.error(`Error checking movie existence: ${uniqueName}`);
-    return null;
-  }
-};
-
-export const timeSlotToTime = (timeSlot: string): string => {
+export const timeSlotToTime = (timeSlot: TimeSlot): string => {
   switch (timeSlot) {
     case TimeSlot.SLOT_10_12:
       return '10:00:00';
@@ -117,39 +91,6 @@ export function formatDateToReadableString(date: Date): string {
 export const formatDate = (date: Date, timeSlot: TimeSlot) => {
   const time = timeSlotToTime(timeSlot);
   return `${format(date, 'yyyy-MM-dd')}T${time}.000Z`;
-};
-
-export const generateTickets = async (sessionId: string) => {
-  TICKET_NUMBERS.forEach(async (ticketNumber) => {
-    try {
-      const ticket = await prisma.ticket.create({
-        data: {
-          session: {
-            connect: { id: sessionId },
-          },
-          ticketNumber,
-        },
-      });
-
-      logger.log(`Ticket ${ticketNumber} created for session ${sessionId}`);
-    } catch (error) {
-      logger.error(
-        `Ticket Already Exists: ${ticketNumber} for session ${sessionId}`,
-      );
-    }
-  });
-};
-
-export const getEnv = (key: string, defaultVal?: any): string => {
-  const result = process.env[key];
-  if (typeof result === 'undefined') {
-    if (defaultVal) {
-      return defaultVal;
-    } else {
-      throw new Error(key + ' not defined in env.');
-    }
-  }
-  return result;
 };
 
 export function emptyResponseStatusCreator(

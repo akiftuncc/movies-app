@@ -63,6 +63,8 @@ yarn start:dev
 yarn start:prod
 ```
 
+#### Swagger `http://localhost:3000/api`
+
 ## Available Scripts
 
 ```bash
@@ -85,24 +87,6 @@ yarn build           # Build the application
 yarn start:prod      # Start in production mode
 ```
 
-### Swagger Setup
-
-The API is documented using OpenAPI (Swagger) decorators in the controllers. Access the documentation:
-
-1. Start the application in development mode:
-
-```bash
-yarn start:dev
-```
-
-2. Visit `http://localhost:3000/api/docs` in your browser
-
-### Main Endpoints
-
-- `GET /api/v1/...` - Description
-- `POST /api/v1/...` - Description
-- Add other main endpoints
-
 ## Project Structure
 
 ```
@@ -115,40 +99,6 @@ src/
 ├── modules/       # Feature modules
 ├── services/      # Business logic
 └── main.ts        # Application entry point
-```
-
-## Development
-
-### Code Style
-
-This project uses ESLint and Prettier for code formatting. Run the following commands:
-
-```bash
-# Lint the code
-yarn lint
-
-# Format the code
-yarn format
-```
-
-### Making Changes
-
-1. Create a new branch
-2. Make your changes
-3. Write/update tests
-4. Submit a pull request
-
-## Testing
-
-```bash
-# Unit tests
-yarn test
-
-# E2E tests
-yarn test:e2e
-
-# Test coverage
-yarn test:cov
 ```
 
 ## Deployment
@@ -168,39 +118,3 @@ yarn build
 ```bash
 yarn start:prod
 ```
-
-## Troubleshooting
-
-Common issues and their solutions:
-
-1. **Database Connection Issues**
-
-   - Verify PostgreSQL is running
-   - Check DATABASE_URL in .env
-   - Ensure database exists
-
-2. **Migration Issues**
-   - Run `yarn prisma generate`
-   - Check migration files
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Commit your changes
-4. Push to the branch
-5. Create a Pull Request
-
-## License
-
-This project is licensed under the [LICENSE NAME] - see the [LICENSE.md](LICENSE.md) file for details.
-
-## Support
-
-For support, email [support@email.com] or join our [Discord channel](link-to-discord).
-
-## Acknowledgments
-
-- List any contributors
-- Third-party libraries used
-- Inspiration sources

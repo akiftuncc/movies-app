@@ -1,13 +1,27 @@
 // seed.ts
 import { PrismaClient } from '@prisma/client';
-import movies from './data/movies.json'; // Ensure you have a movies.json file with movie data
 import { Logger } from '@nestjs/common';
-import {
-  generateTickets,
-  generateUniqueMovieName,
-  sleep,
-} from 'src/utils/functions';
-import { TICKET_NUMBERS } from 'src/utils/constants';
+import { TICKET_NUMBERS } from '@/config/constants';
+
+const generateTickets = async (sessionId: string) => {
+  TICKET_NUMBERS.forEach(async (ticketNumber) => {
+    try {
+      await prisma.ticket.create({
+        data: {
+          session: {
+            connect: { id: sessionId },
+          },
+          ticketNumber,
+        },
+      });
+      logger.log(`Ticket ${ticketNumber} created for session ${sessionId}`);
+    } catch (error) {
+      logger.error(
+        `Ticket Already Exists: ${ticketNumber} for session ${sessionId}`,
+      );
+    }
+  });
+};
 
 const prisma = new PrismaClient();
 const logger = new Logger('Seeding - tickets');

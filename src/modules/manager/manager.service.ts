@@ -3,9 +3,8 @@ import {
   SessionBulkData,
   sessionBulkDataCreator,
 } from '@/utils/bulk-data-creators';
-import { StatusCode, TICKET_NUMBERS } from '@/utils/constants';
+import { StatusCode } from '@/config/constants';
 import {
-  generateTickets,
   generateUniqueMovieName,
   isRespnseFailed,
   emptyResponseStatusCreator,
@@ -13,23 +12,24 @@ import {
 } from '@/utils/functions';
 import { prismaDeletedAt } from '@/utils/prisma-functions';
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
-import { Movie, PrismaClient, TimeSlot } from '@prisma/client';
-import {
-  EmptyResponse,
-  ByIdRequest,
-  ResponseStatus,
-} from 'proto-generated/general';
+import { PrismaClient, TimeSlot } from '@prisma/client';
+import { EmptyResponse, ByIdRequest } from 'proto-generated/general';
 import {
   AddMovieRequest,
   UpdateMovieRequest,
 } from 'proto-generated/manager_messages';
 
 import { PManagerService } from 'proto-generated/services';
+import { PrismaHelperService } from '../prisma-helpers.service';
+import { PrismaService } from '@/prisma/prisma.service';
 
 @Injectable()
 export class ManagerService implements OnModuleInit, PManagerService {
   private readonly logger = new Logger(ManagerService.name);
-  constructor(private readonly prisma: PrismaClient) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly prismaHelperService: PrismaHelperService,
+  ) {}
 
   private async isMovieExists(request: AddMovieRequest) {
     const movieExists = await this.prisma.movie.findFirst({
@@ -78,7 +78,7 @@ export class ManagerService implements OnModuleInit, PManagerService {
     try {
       const movieDb = await this.createMoviePrisma(request, sessions);
       movieDb.sessions.forEach(async (session) => {
-        await generateTickets(session.id);
+        await this.prismaHelperService.generateTickets(session.id);
       });
       return emptyResponseStatusCreator(
         false,
@@ -149,7 +149,7 @@ export class ManagerService implements OnModuleInit, PManagerService {
         },
       });
       movie.sessions.forEach(async (session) => {
-        await generateTickets(session.id);
+        await this.prismaHelperService.generateTickets(session.id);
       });
     });
   }

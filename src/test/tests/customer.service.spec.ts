@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { CustomerService } from '../../modules/customer/customer.service';
 import { PrismaClient } from '@prisma/client';
-import { StatusCode } from '@/utils/constants';
+import { StatusCode } from '@/config/constants';
 
 describe('CustomerService', () => {
   let service: CustomerService;

@@ -1,16 +1,31 @@
 // seed.ts
-import { PrismaClient, TimeSlot } from '@prisma/client';
+import { Movie, PrismaClient, TimeSlot } from '@prisma/client';
 import sessions from './data/sessions.json'; // Import slots data
 import { Logger } from '@nestjs/common';
 import {
   formatDate,
   generateUniqueMovieName,
-  isMovieExist,
   sleep,
 } from 'src/utils/functions';
 
 const prisma = new PrismaClient();
 const logger = new Logger('Seeding - sessions');
+
+const isMovieExist = async (uniqueName: string): Promise<Movie> => {
+  try {
+    const movie = await prisma.movie.findUnique({
+      where: { uniqueName },
+    });
+    if (!movie) {
+      logger.error(`Movie with uniqueName ${uniqueName} not found`);
+      return null;
+    }
+    return movie;
+  } catch {
+    logger.error(`Error checking movie existence: ${uniqueName}`);
+    return null;
+  }
+};
 
 export async function createSessions() {
   for (const session of sessions) {

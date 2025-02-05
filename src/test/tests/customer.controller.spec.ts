@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { CustomerController } from '../../modules/customer/customer.controller';
 import { CustomerService } from '../../modules/customer/customer.service';
 import { PrismaClient } from '@prisma/client';
-import { StatusCode } from '@/utils/constants';
+import { StatusCode } from '@/config/constants';
 
 describe('CustomerController', () => {
   let controller: CustomerController;

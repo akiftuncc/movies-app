@@ -35,11 +35,13 @@ import {
   userTypeToReadableString,
 } from '@/utils/user-functions';
 import { CONFIG_ENV } from '@/config/config';
-import { StatusCode } from '@/utils/constants';
+import { StatusCode } from '@/config/constants';
+import { PrismaService } from '@/prisma/prisma.service';
+import { PrismaHelperService } from '../prisma-helpers.service';
 
 @Injectable()
 export class UserService implements OnModuleInit, PUserService {
-  constructor(private readonly prisma: PrismaClient) {}
+  constructor(private readonly prisma: PrismaService) {}
 
   private async listMoviesDb(request: PaginateRequest) {
     return await this.prisma.movie.findMany({

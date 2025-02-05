@@ -65,7 +65,6 @@ export class UserController {
   @UsePipes(new ZodValidationPipe(PaginateRequestDto))
   async listMovies(
     @Body() body: PaginateRequestDto,
-    @Headers('Authorization') headers,
   ): Promise<ListMoviesResponse> {
     return await this.userService.listMovies(body);
   }
@@ -104,7 +103,7 @@ export class UserController {
   async delete(
     @Headers('Authorization') authHeader: string,
   ): Promise<EmptyResponse> {
-    const userId = findUserIdByAuthHeader(authHeader);
+    const userId = findUserIdByAuthHeader(authHeader, this.jwtService);
     return await this.userService.delete({ id: userId });
   }
 }

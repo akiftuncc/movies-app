@@ -1,15 +1,9 @@
-import { getEnv } from '@/utils/functions';
-
 export const CONFIG_ENV = {
-  databaseUrl: getEnv('DATABASE_URL'),
-  appMode: getEnv('APP_MODE'),
-  jwtSecret: getEnv('JWT_SECRET'),
-  jwtExpiresIn: Number(getEnv('JWT_EXPIRES_IN')),
-  host: getEnv('HOST'),
-  port: getEnv('PORT'),
-  redisHost: getEnv('REDIS_HOST'),
-  redisPort: getEnv('REDIS_PORT'),
-  redisDb: getEnv('REDIS_DB'),
-  redisUsername: getEnv('REDIS_USERNAME'),
-  redisPassword: getEnv('REDIS_PASSWORD'),
+  databaseUrl: process.env.DATABASE_URL,
+  nodeEnv: process.env.NODE_ENV,
+  jwtSecret: process.env.JWT_SECRET,
+  jwtExpiration: Number(process.env.JWT_EXPIRATION),
+  host: process.env.HOST,
+  port: process.env.PORT,
+  x_internal_hash: process.env.X_INTERNAL_HASH,
 };
